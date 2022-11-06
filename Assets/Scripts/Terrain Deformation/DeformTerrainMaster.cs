@@ -38,6 +38,10 @@ public class DeformTerrainMaster : MonoBehaviour
     public Rigidbody leftFootRB;
     [Tooltip("RB attached to Right Foot for velocity estimation")]
     public Rigidbody rightFootRB;
+    [Tooltip("Particle system attached to Left Foot to leave footprints particles")]
+    public ParticleSystem leftFootPS;
+    [Tooltip("Particle system attached to Right Foot to leave footprints particles")]
+    public ParticleSystem rightFootPS;
 
     [Header("Source of Deformation - (SET UP)")]
     public sourceDeformation deformationChoice;
@@ -182,6 +186,10 @@ public class DeformTerrainMaster : MonoBehaviour
     private bool isJumping = false;
     private int provCounter = 0;
 
+    // Foot particles
+    private bool leftFootParticlesLock = false;
+    private bool rightFootParticlesLock = false;
+
     #endregion
 
     #region Plotting
@@ -273,6 +281,11 @@ public class DeformTerrainMaster : MonoBehaviour
         ApplyDeformation();
     }
 
+    void LateUpdate()
+    {
+        ApplyFootParticles();
+    }
+
     public void FixedUpdate()
     {
         // 1. Calculate Velocity for the feet
@@ -282,6 +295,27 @@ public class DeformTerrainMaster : MonoBehaviour
     #endregion
 
     #region Instance Methods
+
+    private void ApplyFootParticles()
+    {
+        // If foot grounded we unlock particle system so that it can be played again
+        if (isLeftFootGrounded)
+            leftFootParticlesLock = false;
+        if (isRightFootGrounded)
+            rightFootParticlesLock = false;
+
+        // If foot is not grounded we lock particle system so that it can't be played again
+        if (feetSpeedLeft.y >= 0.1f)
+        {
+            leftFootParticlesLock = true;
+            leftFootPS.Play();
+        }
+        if (feetSpeedRight.y >= 0.1f)
+        {
+            rightFootParticlesLock = true;
+            rightFootPS.Play();
+        }
+    }
 
     private void ApplyDeformation()
     {
@@ -387,10 +421,9 @@ public class DeformTerrainMaster : MonoBehaviour
                 weightInRightFoot = 0f;
             }
         }
-
+        
         //       Bipedal Force Model       //
         // =============================== //
-
         if (brushPhysicalFootprint)
         {
             if (!isRightFootGrounded && !isLeftFootGrounded) // NEW

@@ -38,7 +38,7 @@ RenderSettings:
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 705507994}
-  m_IndirectSpecularColor: {r: 0.44948155, g: 0.49955386, b: 0.57568777, a: 1}
+  m_IndirectSpecularColor: {r: 0.44948208, g: 0.4995545, b: 0.57568896, a: 1}
   m_UseRadianceAmbientProbe: 0
 --- !u!157 &3
 LightmapSettings:
@@ -336,6 +336,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3fbc5771d96cdc846b3dadc3fd6a92fd, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  joystickMode: 1
   rootKinematicSkeleton: {fileID: 1816848493}
   moveDirection: {x: 0, y: 0, z: 0}
   _inputs: {x: 0, y: 0, z: 0}
@@ -493,6 +494,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ac0b09e7857660247b1477e93731de29, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!198 &366992905 stripped
+ParticleSystem:
+  m_CorrespondingSourceObject: {fileID: 7609278839992470194, guid: 0c2b68c06620a224f8d9f3605c74c9f6, type: 3}
+  m_PrefabInstance: {fileID: 5285571257534934627}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &370383752
 GameObject:
   m_ObjectHideFlags: 3
@@ -559,7 +565,7 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 370383752}
-  m_LocalRotation: {x: 0.010117851, y: 0.9872897, z: -0.14220545, w: 0.07024521}
+  m_LocalRotation: {x: 0.010117843, y: 0.9872897, z: -0.14220545, w: 0.07024514}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
@@ -2177,6 +2183,8 @@ MonoBehaviour:
   rightFootCollider: {fileID: 1611358549}
   leftFootRB: {fileID: 65967983}
   rightFootRB: {fileID: 1611358548}
+  leftFootPS: {fileID: 366992905}
+  rightFootPS: {fileID: 2002999516}
   deformationChoice: 1
   timePassed: 0
   contactTime: 0.2
@@ -2468,6 +2476,11 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 4
   m_LocalEulerAnglesHint: {x: 35.38, y: -90, z: 0}
+--- !u!198 &2002999516 stripped
+ParticleSystem:
+  m_CorrespondingSourceObject: {fileID: 21297181161615503, guid: 0c2b68c06620a224f8d9f3605c74c9f6, type: 3}
+  m_PrefabInstance: {fileID: 5285571257534934627}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &2138284017
 GameObject:
   m_ObjectHideFlags: 0
@@ -2563,6 +2576,18 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 21297181161615501, guid: 0c2b68c06620a224f8d9f3605c74c9f6, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 21297181161615503, guid: 0c2b68c06620a224f8d9f3605c74c9f6, type: 3}
+      propertyPath: lengthInSec
+      value: 0.2
+      objectReference: {fileID: 0}
+    - target: {fileID: 331153741591160941, guid: 0c2b68c06620a224f8d9f3605c74c9f6, type: 3}
+      propertyPath: m_Enabled
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 5285571255853417998, guid: 0c2b68c06620a224f8d9f3605c74c9f6, type: 3}
       propertyPath: m_RootOrder
       value: 15
@@ -2612,9 +2637,29 @@ PrefabInstance:
       value: Human
       objectReference: {fileID: 0}
     - target: {fileID: 5978729690067579632, guid: 0c2b68c06620a224f8d9f3605c74c9f6, type: 3}
+      propertyPath: _isGrounded
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 5978729690067579632, guid: 0c2b68c06620a224f8d9f3605c74c9f6, type: 3}
       propertyPath: currentTerrain
       value: 
       objectReference: {fileID: 1758997913}
+    - target: {fileID: 7609278839992470192, guid: 0c2b68c06620a224f8d9f3605c74c9f6, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7609278839992470192, guid: 0c2b68c06620a224f8d9f3605c74c9f6, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 0.045
+      objectReference: {fileID: 0}
+    - target: {fileID: 7609278839992470194, guid: 0c2b68c06620a224f8d9f3605c74c9f6, type: 3}
+      propertyPath: lengthInSec
+      value: 0.2
+      objectReference: {fileID: 0}
+    - target: {fileID: 7609278839992470194, guid: 0c2b68c06620a224f8d9f3605c74c9f6, type: 3}
+      propertyPath: useRigidbodyForVelocity
+      value: 0
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 0c2b68c06620a224f8d9f3605c74c9f6, type: 3}
 --- !u!1 &5603148222835410440 stripped

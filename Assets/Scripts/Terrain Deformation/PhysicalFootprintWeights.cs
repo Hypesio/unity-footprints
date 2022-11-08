@@ -1,6 +1,8 @@
 using System.Collections;
 using System.Collections.Generic;
+using UnityEditorInternal;
 using UnityEngine;
+using UnityEngine.EventSystems;
 
 public static class PhysicalFootprintWeights 
 {
@@ -21,28 +23,194 @@ public static class PhysicalFootprintWeights
 
         return weightsBump;
     }
-    public static float[,] UpdateWeights(float[,] weightsBump, int[,] heightMapBool, int gridSize, int offsetBumpGrid)
+
+    // Progress on the grid, update heightBoolMap and return 'true' if reach the end of the grid
+    private static bool moveArrow(int[,] heightBoolMap, ref float[,] grid, int minGrid, int maxGrid,
+        ref int[,] gridWays, ref bool[] passFeet, int arrowIndex, int speed, bool yDirection)
     {
-        // Just the half back of the grid
-        // TODO Take the number of cell in the contour to preserve volume moved
-        // TODO Use the speed vector to determine the value of each cell
-        for (int i = -gridSize + offsetBumpGrid; i < gridSize - offsetBumpGrid; i++)
+        int x = gridWays[arrowIndex, 1];
+        int y = gridWays[arrowIndex, 0];
+        int xyTested = yDirection ? y : x;
+        int startTested = yDirection ? y : x;
+        
+        while (xyTested != startTested + speed && xyTested >= minGrid && xyTested < maxGrid)
         {
-            for (int j = -gridSize + offsetBumpGrid; j < gridSize - offsetBumpGrid; j++)
+            // If we are on the feet
+            if (heightBoolMap[y, x] == (int)PhysicalFootprint.CellState.Contact)
             {
-                // If we are on a contour we increase the weight
-                if (heightMapBool[i + gridSize, j + gridSize] == 1)
+                passFeet[arrowIndex] = true;
+            }
+            // If we are on a contour
+            else if (heightBoolMap[y, x] == (int)PhysicalFootprint.CellState.Contour)
+            {
+                // TODO Static useless value for the moment on the grid
+                if (passFeet[arrowIndex])
                 {
-                    // Value if arbitrary for the moment
-                    if (j < 0)
-                        weightsBump[i + gridSize, j + gridSize] *= 3f;    
-                    else 
-                        weightsBump[i + gridSize, j + gridSize] /= 3f;
-                    
+                    grid[y, x] = 2f;
+                }
+                else
+                {
+                    grid[y, x] = 0f;
                 }
             }
+            
+            if (yDirection)
+                y = speed > 0 ? y + 1 : y - 1;
+            else
+                x = speed > 0 ? x + 1 : x - 1;
+            xyTested = yDirection ? y : x;
         }
 
+        gridWays[arrowIndex,0] = yDirection ? startTested + speed : y; 
+        gridWays[arrowIndex,1] = yDirection ? x : startTested + speed; 
+        
+        return xyTested < minGrid || xyTested >= maxGrid;
+    }
+
+    // **
+    // Will progress on the weight grid in the direction of the speed vector and change weights value depending 
+    // on speed magnitude and if the weights is before or after the feet in the speed direction
+    // **
+    public static float[,] UpdateWeightsUsingSpeed(float[,] weightsBump, int[,] heightMapBool, int gridSize, Vector3 speed)
+    {
+        int minGrid = 0;
+        int maxGrid = 2 * gridSize + 1;
+        return UpdateWeightsUsingSpeed(weightsBump, heightMapBool, minGrid, maxGrid, speed);
+    }
+
+    public static float[,] UpdateWeightsUsingSpeed(float[,] weightsBump, int[,] heightMapBool, int minGrid, int maxGrid,
+        Vector3 speed)
+    {
+        // TODO Take the number of cell in the contour to preserve volume moved
+        // TODO Use the speed vector to determine the value of each cell
+        
+        int xSpeed;
+        int ySpeed;
+        //PrintGrid(heightMapBool, minGrid, maxGrid);
+        
+        int sizeGrid = maxGrid - minGrid;
+   
+        // Set the speed of the "arrows" in the grid
+        if (Mathf.Abs(speed.x) > Mathf.Abs(speed.z))
+        {
+            xSpeed = Mathf.RoundToInt(speed.x / speed.z);
+            if (speed.x < 0 && xSpeed > 0 || speed.x > 0 && xSpeed < 0)
+                xSpeed = -xSpeed;
+            ySpeed = 1; 
+            if (speed.z < 0)
+                ySpeed = -1; 
+        }
+        else
+        {
+            xSpeed = 1;
+            if (speed.x < 0)
+                xSpeed = -1;
+            ySpeed = Mathf.RoundToInt(speed.z / speed.x);
+            if (speed.z < 0 && ySpeed > 0 || speed.z > 0 && ySpeed < 0)
+                ySpeed = -ySpeed;
+        }
+        
+        //Debug.Log("Speed for grid x/z: " + xSpeed + "/" + ySpeed);
+        
+        // Arrows that will pass on the grid
+        int[,] gridWays = new int[sizeGrid * 2, 2];
+        bool[] gridWaysStopped = new bool[sizeGrid * 2];
+        bool[] gridWaysPassFeet = new bool[sizeGrid * 2];
+        
+        // Set start position. Will be on two sides of the grid
+        for (int i = 0; i < sizeGrid; i++)
+        {
+            gridWaysStopped[i] = false;
+            gridWaysPassFeet[i] = false;
+            // Start at the beginning or at the end of a top / bottom side
+            gridWays[i, 0] = ySpeed > 0 ? minGrid : maxGrid - 1;
+            gridWays[i, 1] = i;
+        }
+        for (int i = sizeGrid; i < sizeGrid * 2; i++)
+        {
+            gridWaysStopped[i] = false;
+            gridWaysPassFeet[i] = false;
+            // Start at the beginning or at the end of right / left side
+            gridWays[i, 0] = i - sizeGrid;
+            gridWays[i, 1] = xSpeed > 0 ? minGrid : maxGrid - 1;
+        }
+        
+        // Iterate on all the grid
+        int touchEnd = 0;
+        int max_iter = 50;
+        int iter = 0; 
+        while (touchEnd < sizeGrid * 2 && iter < max_iter)
+        {
+            // Iterate on all "arrows"
+            for (int arrowIndex = 0; arrowIndex < sizeGrid * 2 && touchEnd < sizeGrid * 2; arrowIndex++)
+            {
+                if (gridWaysStopped[arrowIndex])
+                    continue;
+                
+                // Start by moving in the strongest direction
+                if (ySpeed > xSpeed)
+                {
+                    // Move in y direction than in x
+                    gridWaysStopped[arrowIndex] = moveArrow(heightMapBool, ref weightsBump, minGrid, maxGrid,
+                        ref gridWays, ref gridWaysPassFeet, arrowIndex, ySpeed, true);
+                    if (!gridWaysStopped[arrowIndex])
+                    {
+                        gridWaysStopped[arrowIndex] = moveArrow(heightMapBool, ref weightsBump, minGrid, maxGrid,
+                            ref gridWays, ref gridWaysPassFeet, arrowIndex, xSpeed, false);
+                    }
+
+                    touchEnd = gridWaysStopped[arrowIndex] ? touchEnd + 1 : touchEnd;
+                }
+                else
+                {
+                    // Move in x direction than in y
+                    gridWaysStopped[arrowIndex] = moveArrow(heightMapBool, ref weightsBump, minGrid, maxGrid,
+                        ref gridWays, ref gridWaysPassFeet, arrowIndex, xSpeed, false);
+                    if (!gridWaysStopped[arrowIndex])
+                        gridWaysStopped[arrowIndex] = moveArrow(heightMapBool, ref weightsBump, minGrid, maxGrid,
+                            ref gridWays, ref gridWaysPassFeet, arrowIndex, ySpeed, true);
+                    touchEnd = gridWaysStopped[arrowIndex] ? touchEnd + 1 : touchEnd;
+                }
+            }
+
+            iter++;
+        }
+        
+        if (iter >= max_iter)
+            Debug.LogWarning("[UpdateWeights] REACH MAX ITERATION ON GRID");
+        
+        //PrintGrid(weightsBump, minGrid, maxGrid);
         return weightsBump;
+    }
+
+    private static void PrintGrid(float[,] grid, int start, int end)
+    {
+        // Print for debug
+        string line = ""; 
+        for (int i = start; i < end; i++)
+        {
+            for (int j = start; j < end; j++)
+            {
+                line += grid[i, j] + " | ";
+            }
+
+            line += '\n';
+        }
+        Debug.Log(line);
+    }
+
+    public static void TestGrid(Vector3 speed, int gridSize, int[,] heightBoolMap)
+    {
+        if (Vector3.Magnitude(speed) < 0.001)
+        {
+            Debug.Log("Not Enough Speed, dont change grid contour");
+            return;
+        }
+
+        float[,] grid = new float[gridSize, gridSize];
+        
+        grid = UpdateWeightsUsingSpeed(grid, heightBoolMap,0, gridSize, speed);
+        
+        PrintGrid(grid, 0, gridSize);
     }
 }

@@ -143,7 +143,12 @@ public class PhysicalFootprint : TerrainBrushPhysicalFootprint
     #endregion
 
     #region Read-only & Static Fields
-
+    
+    public enum CellState {
+        NoContact = 0, 
+        Contour = 1, 
+        Contact = 2
+    }
     // Force for bump
     private Vector3 forcePositionLeft;
     private Vector3 forcePositionLeft2D;
@@ -307,7 +312,7 @@ public class PhysicalFootprint : TerrainBrushPhysicalFootprint
                 if (RightFootCollider.Raycast(upRayRightFoot, out rightFootHit, raycastDistance))
                 {
                     // Cell contacting directly
-                    heightMapRightBool[zi + gridSize, xi + gridSize] = 2;
+                    heightMapRightBool[zi + gridSize, xi + gridSize] = (int)CellState.Contact;
                     counterHitsRight++;
 
                     if (showGridDebugRight)
@@ -316,7 +321,7 @@ public class PhysicalFootprint : TerrainBrushPhysicalFootprint
                 else
                 {
                     // No contact
-                    heightMapRightBool[zi + gridSize, xi + gridSize] = 0;
+                    heightMapRightBool[zi + gridSize, xi + gridSize] = (int)CellState.NoContact;
 
                     if (showGridDebugRight)
                         Debug.DrawRay(rayGridWorldRight, Vector3.up * raycastDistance, Color.red);
@@ -361,7 +366,7 @@ public class PhysicalFootprint : TerrainBrushPhysicalFootprint
                 for (int xi = -gridSize + offsetBumpGrid; xi <= gridSize - offsetBumpGrid; xi++)
                 {
                     // A. If the cell was not in contact, it's a potential neighbour (countour) cell
-                    if (heightMapRightBool[zi + gridSize, xi + gridSize] == 0)
+                    if (heightMapRightBool[zi + gridSize, xi + gridSize] == (int)CellState.NoContact)
                     {
                         // B. Only checking adjacent cells - increasing this would allow increasing the area of the bump
                         for (int zi_sub = -neighboursSearchArea; zi_sub <= neighboursSearchArea; zi_sub++)
@@ -369,20 +374,20 @@ public class PhysicalFootprint : TerrainBrushPhysicalFootprint
                             for (int xi_sub = -neighboursSearchArea; xi_sub <= neighboursSearchArea; xi_sub++)
                             {
                                 // C. If there is a contact point around the cell
-                                if (heightMapRightBool[zi + zi_sub + gridSize, xi + xi_sub + gridSize] == 2)
+                                if (heightMapRightBool[zi + zi_sub + gridSize, xi + xi_sub + gridSize] == (int)CellState.Contact)
                                 {
                                     Vector3 rayGridRight = new Vector3(xRight + xi, terrain.Get(xRight + xi, zRight + zi) - offsetRay, zRight + zi);
                                     Vector3 rayGridWorldRight = terrain.Grid2World(rayGridRight);
 
                                     // D. Mark that cell as a countour point
-                                    heightMapRightBool[zi + gridSize, xi + gridSize] = 1;
+                                    heightMapRightBool[zi + gridSize, xi + gridSize] = (int)CellState.Contour;
                                     break;
                                 }
                             }
                         }
                     }
 
-                    if (heightMapRightBool[zi + gridSize, xi + gridSize] == 1)
+                    if (heightMapRightBool[zi + gridSize, xi + gridSize] == (int)CellState.Contour)
                     {
                         // C. Each neightbour cell in world space
                         Vector3 rayGridRight = new Vector3(xRight + xi, terrain.Get(xRight + xi, zRight + zi) - offsetRay, zRight + zi);
@@ -499,13 +504,11 @@ public class PhysicalFootprint : TerrainBrushPhysicalFootprint
         
         if (applyModulatedBumps)
         {
-            weightsBumpLeft =
-                PhysicalFootprintWeights.UpdateWeights(weightsBumpLeft, heightMapLeftBool, gridSize,
-                    offsetBumpGrid);
-
-            weightsBumpRight =
-                PhysicalFootprintWeights.UpdateWeights(weightsBumpRight, heightMapRightBool, gridSize,
-                    offsetBumpGrid);
+            Vector3 speed = new Vector3(1, 0, 0);
+            weightsBumpLeft = PhysicalFootprintWeights.UpdateWeightsUsingSpeed(weightsBumpLeft, heightMapLeftBool,
+                gridSize, speed);
+            weightsBumpRight = PhysicalFootprintWeights.UpdateWeightsUsingSpeed(weightsBumpRight, heightMapRightBool,
+                gridSize, speed);
         }
 
         #region Front/Back

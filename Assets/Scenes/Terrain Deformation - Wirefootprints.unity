@@ -4212,6 +4212,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a8a290d42a40ea94cb6133f69321cd3f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  rotateWithRespect: {fileID: 1639267052}
+  speed: 1
 --- !u!1 &978818597
 GameObject:
   m_ObjectHideFlags: 0
@@ -6524,6 +6526,11 @@ GameObject:
   m_CorrespondingSourceObject: {fileID: 331153741591160939, guid: 0c2b68c06620a224f8d9f3605c74c9f6, type: 3}
   m_PrefabInstance: {fileID: 5129985757847151592}
   m_PrefabAsset: {fileID: 0}
+--- !u!4 &1639267052 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 1140446713428144849, guid: 0c2b68c06620a224f8d9f3605c74c9f6, type: 3}
+  m_PrefabInstance: {fileID: 5129985757847151592}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &1644463164
 GameObject:
   m_ObjectHideFlags: 0
@@ -8437,6 +8444,22 @@ PrefabInstance:
       propertyPath: moveWithTransform
       value: 1
       objectReference: {fileID: 0}
+    - target: {fileID: 21297181161615503, guid: 0c2b68c06620a224f8d9f3605c74c9f6, type: 3}
+      propertyPath: CollisionModule.type
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 21297181161615503, guid: 0c2b68c06620a224f8d9f3605c74c9f6, type: 3}
+      propertyPath: CollisionModule.enabled
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 21297181161615503, guid: 0c2b68c06620a224f8d9f3605c74c9f6, type: 3}
+      propertyPath: CollisionModule.m_Bounce.scalar
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 21297181161615503, guid: 0c2b68c06620a224f8d9f3605c74c9f6, type: 3}
+      propertyPath: CollisionModule.collidesWith.m_Bits
+      value: 256
+      objectReference: {fileID: 0}
     - target: {fileID: 124112796308602714, guid: 0c2b68c06620a224f8d9f3605c74c9f6, type: 3}
       propertyPath: m_LocalPosition.z
       value: 0
@@ -8552,6 +8575,26 @@ PrefabInstance:
     - target: {fileID: 7609278839992470194, guid: 0c2b68c06620a224f8d9f3605c74c9f6, type: 3}
       propertyPath: moveWithTransform
       value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 7609278839992470194, guid: 0c2b68c06620a224f8d9f3605c74c9f6, type: 3}
+      propertyPath: CollisionModule.type
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 7609278839992470194, guid: 0c2b68c06620a224f8d9f3605c74c9f6, type: 3}
+      propertyPath: CollisionModule.enabled
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 7609278839992470194, guid: 0c2b68c06620a224f8d9f3605c74c9f6, type: 3}
+      propertyPath: CollisionModule.m_Bounce.scalar
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7609278839992470194, guid: 0c2b68c06620a224f8d9f3605c74c9f6, type: 3}
+      propertyPath: CollisionModule.collidesWith.m_Bits
+      value: 256
+      objectReference: {fileID: 0}
+    - target: {fileID: 7609278839992470194, guid: 0c2b68c06620a224f8d9f3605c74c9f6, type: 3}
+      propertyPath: CollisionModule.multiplyColliderForceByParticleSpeed
+      value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 0c2b68c06620a224f8d9f3605c74c9f6, type: 3}

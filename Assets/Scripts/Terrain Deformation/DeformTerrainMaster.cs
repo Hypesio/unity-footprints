@@ -99,6 +99,8 @@ public class DeformTerrainMaster : MonoBehaviour
     private Vector3 oldIKRightPosition;
     private Animator _anim;
     private IKFeetPlacement _feetPlacement = null;
+    private bool wasLeftFootGrounded;
+    private bool wasRightFootGrounded;
 
     [Header("Bipedal - Physics - Debug")]
     [Space(20)]
@@ -298,23 +300,37 @@ public class DeformTerrainMaster : MonoBehaviour
 
     private void ApplyFootParticles()
     {
-        // If foot grounded we unlock particle system so that it can be played again
-        if (isLeftFootGrounded)
-            leftFootParticlesLock = false;
-        if (isRightFootGrounded)
-            rightFootParticlesLock = false;
-
-        // If foot is not grounded we lock particle system so that it can't be played again
-        if (momentumForceLeft.y < 0.0f)
+        // // If foot grounded we unlock particle system so that it can be played again
+        // if (isLeftFootGrounded)
+        //     leftFootParticlesLock = false;
+        // if (isRightFootGrounded)
+        //     rightFootParticlesLock = false;
+        //
+        // // If foot is not grounded we lock particle system so that it can't be played again
+        // if (momentumForceLeft.y < 0.0f)
+        // {
+        //     leftFootParticlesLock = true;
+        //     leftFootPS.Play();
+        // }
+        // if (momentumForceRight.y < 0.0f)
+        // {
+        //     rightFootParticlesLock = true;
+        //     rightFootPS.Play();
+        // }
+        if (wasLeftFootGrounded && !isLeftFootGrounded)
         {
-            leftFootParticlesLock = true;
             leftFootPS.Play();
         }
-        if (momentumForceRight.y < 0.0f)
+
+        wasLeftFootGrounded = isLeftFootGrounded;
+        
+        if (wasRightFootGrounded && !isRightFootGrounded)
         {
-            rightFootParticlesLock = true;
             rightFootPS.Play();
         }
+
+        wasRightFootGrounded = isRightFootGrounded;
+        
     }
 
     private void ApplyDeformation()

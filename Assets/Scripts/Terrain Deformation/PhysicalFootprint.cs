@@ -504,9 +504,12 @@ public class PhysicalFootprint : TerrainBrushPhysicalFootprint
         
         if (applyModulatedBumps)
         {
-            Vector3 speed = new Vector3(1, 0, 0);
+            Vector3 speed = DeformTerrainMaster.Instance.feetSpeedLeft;
+            Debug.Log("[Deform] Left feet speed " + speed);
             weightsBumpLeft = PhysicalFootprintWeights.UpdateWeightsUsingSpeed(weightsBumpLeft, heightMapLeftBool,
                 gridSize, speed);
+            Debug.Log("[Deform] right feet speed " + speed);
+            speed = DeformTerrainMaster.Instance.feetSpeedRight;
             weightsBumpRight = PhysicalFootprintWeights.UpdateWeightsUsingSpeed(weightsBumpRight, heightMapRightBool,
                 gridSize, speed);
         }

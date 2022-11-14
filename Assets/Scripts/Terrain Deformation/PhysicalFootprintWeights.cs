@@ -83,6 +83,12 @@ public static class PhysicalFootprintWeights
     {
         // TODO Take the number of cell in the contour to preserve volume moved
         // TODO Use the speed vector to determine the value of each cell
+
+        if (Vector3.Magnitude(speed) < 0.1)
+        {
+            // Speed is too much low to affect bump
+            return weightsBump;
+        }
         
         int xSpeed;
         int ySpeed;

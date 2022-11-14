@@ -195,6 +195,12 @@ public class RigidBodyControllerSimpleAnimator : MonoBehaviour
         _anim.SetFloat("InputZ", _inputs.z, 0.0f, Time.deltaTime);
 
         inputMagnitude = _inputs.sqrMagnitude;
+        
+        if (Input.GetKey(KeyCode.R))
+        {
+            Debug.Log("Start play slide");
+            _anim.Play("Slide");
+        }
 
         if (!joystickMode)
         {

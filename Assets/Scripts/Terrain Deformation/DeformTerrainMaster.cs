@@ -27,6 +27,8 @@ public class DeformTerrainMaster : MonoBehaviour
 {
     #region Instance Fields
 
+    public static DeformTerrainMaster Instance; 
+
     [Header("Bipedal - (SET UP)")]
     [Tooltip("Your character GameObject")]
     public GameObject myBipedalCharacter;
@@ -213,6 +215,11 @@ public class DeformTerrainMaster : MonoBehaviour
     #endregion
 
     #region Unity Methods
+
+    private void Awake()
+    {
+        Instance = this;
+    }
 
     void Start()
     {

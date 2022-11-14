@@ -305,12 +305,12 @@ public class DeformTerrainMaster : MonoBehaviour
             rightFootParticlesLock = false;
 
         // If foot is not grounded we lock particle system so that it can't be played again
-        if (feetSpeedLeft.y >= 0.1f)
+        if (momentumForceLeft.y < 0.0f)
         {
             leftFootParticlesLock = true;
             leftFootPS.Play();
         }
-        if (feetSpeedRight.y >= 0.1f)
+        if (momentumForceRight.y < 0.0f)
         {
             rightFootParticlesLock = true;
             rightFootPS.Play();

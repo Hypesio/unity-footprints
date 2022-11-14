@@ -692,10 +692,13 @@ public class DeformTerrainMaster : MonoBehaviour
                     contactTime = timeSlider.value;
 
                     // Force Model UI
-                    drawWeightForces = activateToggleShowForceModel.isOn;
-                    drawMomentumForces = activateToggleShowForceModel.isOn;
-                    drawGRForces = activateToggleShowForceModel.isOn;
-                    drawFeetForces = activateToggleShowForceModel.isOn;
+                    if(!(activateToggleShowForceModel is null))
+                    {
+                        drawWeightForces = activateToggleShowForceModel.isOn;
+                        drawMomentumForces = activateToggleShowForceModel.isOn;
+                        drawGRForces = activateToggleShowForceModel.isOn;
+                        drawFeetForces = activateToggleShowForceModel.isOn;
+                    }
 
                 }
                 break;

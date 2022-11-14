@@ -8436,30 +8436,6 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 0}
     m_Modifications:
-    - target: {fileID: 21297181161615503, guid: 0c2b68c06620a224f8d9f3605c74c9f6, type: 3}
-      propertyPath: playOnAwake
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 21297181161615503, guid: 0c2b68c06620a224f8d9f3605c74c9f6, type: 3}
-      propertyPath: moveWithTransform
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 21297181161615503, guid: 0c2b68c06620a224f8d9f3605c74c9f6, type: 3}
-      propertyPath: CollisionModule.type
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 21297181161615503, guid: 0c2b68c06620a224f8d9f3605c74c9f6, type: 3}
-      propertyPath: CollisionModule.enabled
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 21297181161615503, guid: 0c2b68c06620a224f8d9f3605c74c9f6, type: 3}
-      propertyPath: CollisionModule.m_Bounce.scalar
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 21297181161615503, guid: 0c2b68c06620a224f8d9f3605c74c9f6, type: 3}
-      propertyPath: CollisionModule.collidesWith.m_Bits
-      value: 256
-      objectReference: {fileID: 0}
     - target: {fileID: 124112796308602714, guid: 0c2b68c06620a224f8d9f3605c74c9f6, type: 3}
       propertyPath: m_LocalPosition.z
       value: 0
@@ -8567,34 +8543,6 @@ PrefabInstance:
     - target: {fileID: 6670947232552304507, guid: 0c2b68c06620a224f8d9f3605c74c9f6, type: 3}
       propertyPath: moveForwardOnly
       value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 7609278839992470194, guid: 0c2b68c06620a224f8d9f3605c74c9f6, type: 3}
-      propertyPath: playOnAwake
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 7609278839992470194, guid: 0c2b68c06620a224f8d9f3605c74c9f6, type: 3}
-      propertyPath: moveWithTransform
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 7609278839992470194, guid: 0c2b68c06620a224f8d9f3605c74c9f6, type: 3}
-      propertyPath: CollisionModule.type
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 7609278839992470194, guid: 0c2b68c06620a224f8d9f3605c74c9f6, type: 3}
-      propertyPath: CollisionModule.enabled
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 7609278839992470194, guid: 0c2b68c06620a224f8d9f3605c74c9f6, type: 3}
-      propertyPath: CollisionModule.m_Bounce.scalar
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 7609278839992470194, guid: 0c2b68c06620a224f8d9f3605c74c9f6, type: 3}
-      propertyPath: CollisionModule.collidesWith.m_Bits
-      value: 256
-      objectReference: {fileID: 0}
-    - target: {fileID: 7609278839992470194, guid: 0c2b68c06620a224f8d9f3605c74c9f6, type: 3}
-      propertyPath: CollisionModule.multiplyColliderForceByParticleSpeed
-      value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 0c2b68c06620a224f8d9f3605c74c9f6, type: 3}

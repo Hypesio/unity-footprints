@@ -60,24 +60,32 @@ public class DeformTerrainMaster : MonoBehaviour
     public bool bumpSnow = false;
     public float poissonRatioSnow = 0.1f;
     public int filterIterationsSnow = 0;
+    public int quantitySnow = 10;
+    public float sizeSnow = 0.08f;
     [Space(10)]
     public double youngModulusDrySand = 600000;
     public float timeDrySand = 0.3f;
     public bool bumpSand = false;
     public float poissonRatioSand = 0.2f;
     public int filterIterationsSand = 5;
+    public int quantityDrySand = 20;
+    public float sizeDrySand = 0.04f;
     [Space(10)]
     public double youngModulusMud = 350000;
     public float timeMud = 0.8f;
     public bool bumpMud = false;
     public float poissonRatioMud = 0.4f;
     public int filterIterationsMud = 2;
+    public int quantityMud = 10;
+    public float sizeMud = 0.05f;
     [Space(10)]
     public double youngModulusSoil = 350000;
     public float timeSoil = 0.8f;
     public bool bumpSoil = false;
     public float poissonRatioSoil = 0.4f;
     public int filterIterationsSoil = 2;
+    public int quantitySoil = 4;
+    public float sizeSoil = 0.05f;
 
     [Header("Bipedal - System Info")]
     [Space(20)]
@@ -317,8 +325,14 @@ public class DeformTerrainMaster : MonoBehaviour
         //     rightFootParticlesLock = true;
         //     rightFootPS.Play();
         // }
+
+        var t = myBipedalCharacter.GetComponent<RigidBodyControllerSimpleAnimator>().currentTerrain.name;
+
         if (wasLeftFootGrounded && !isLeftFootGrounded)
         {
+            leftFootPS.emissionRate = getEmissionRate(feetSpeedLeft.y, t);
+            var mainModule = leftFootPS.main;
+            mainModule.startSize = getStartSize(t);
             leftFootPS.Play();
         }
 
@@ -326,11 +340,50 @@ public class DeformTerrainMaster : MonoBehaviour
         
         if (wasRightFootGrounded && !isRightFootGrounded)
         {
+            rightFootPS.emissionRate = getEmissionRate(feetSpeedRight.y, t);
+            var mainModule = rightFootPS.main;
+            mainModule.startSize = getStartSize(t);
             rightFootPS.Play();
         }
 
         wasRightFootGrounded = isRightFootGrounded;
         
+    }
+
+    private float getEmissionRate(float speed, string terrain)
+    {
+        float emissionRate = 100 * speed;
+        switch (terrain)
+        {
+            case "Snow":
+                emissionRate += quantitySnow;
+                break;
+            case "Dry Sand":
+                emissionRate += quantityDrySand;
+                break;
+            case "Mud":
+                emissionRate += quantityMud;
+                break;
+            default:
+                emissionRate += quantitySoil;
+                break;
+        }
+        return emissionRate;
+    }
+
+    private float getStartSize(string terrain)
+    {
+        switch (terrain)
+        {
+            case "Snow":
+                return sizeSnow;
+            case "Dry Sand":
+                return sizeDrySand;
+            case "Mud":
+                return sizeMud;
+            default:
+                return sizeSoil;
+        }
     }
 
     private void ApplyDeformation()

@@ -336,6 +336,11 @@ public class DeformTerrainMaster : MonoBehaviour
             oldIsJumping = isJumping;
             provCounter = 0;
         }
+
+        if (_anim.GetCurrentAnimatorStateInfo(0).IsName("Dance") || _anim.GetCurrentAnimatorStateInfo(0).IsName("Slide"))
+        {
+            timePassed = 0f;
+        }
     }
 
     private void DebugForceModel()
@@ -637,10 +642,11 @@ public class DeformTerrainMaster : MonoBehaviour
     private void UpdateTerrain()
     {
         // A. Every time we change to other terrainData, we update
-        if (terrain.name != myBipedalCharacter.GetComponent<RigidBodyControllerSimpleAnimator>().currentTerrain.name)
+        Terrain newTerrain = myBipedalCharacter.GetComponent<RigidBodyControllerSimpleAnimator>().currentTerrain;
+        if (newTerrain != null && terrain.name != newTerrain.name)
         {
             // Extract terrain information
-            terrain = myBipedalCharacter.GetComponent<RigidBodyControllerSimpleAnimator>().currentTerrain;
+            terrain = newTerrain;
             Debug.Log("[INFO] Updating to new terrain: " + terrain.name);
 
             terrain_collider = terrain.GetComponent<Collider>();

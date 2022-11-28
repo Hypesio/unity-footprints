@@ -1,11 +1,8 @@
-using System.Collections;
-using System.Collections.Generic;
-using UnityEditorInternal;
 using UnityEngine;
-using UnityEngine.EventSystems;
 
 public static class PhysicalFootprintWeights 
 {
+    // Setup the weights value for the grid 
     public static float[,] SetupWeights(int gridSize, int offsetBumpGrid, int[,] heightMapBool)
     {
         float[,] weightsBump = new float[2 * gridSize + 1, 2 * gridSize + 1];
@@ -24,9 +21,9 @@ public static class PhysicalFootprintWeights
         return weightsBump;
     }
 
-    // Progress on the grid, update heightBoolMap and return 'true' if reach the end of the grid
+    // Progress on the grid on a direction, update grid and return 'true' if reach the end of the grid
     private static bool moveArrow(int[,] heightBoolMap, ref float[,] grid, int minGrid, int maxGrid,
-        ref int[,] gridWays, ref bool[] passFeet, int arrowIndex, int speed, bool yDirection)
+        ref int[,] gridWays, ref bool[] passFeet, int arrowIndex, int speed, bool yDirection, float speedForce)
     {
         int x = gridWays[arrowIndex, 1];
         int y = gridWays[arrowIndex, 0];
@@ -46,11 +43,11 @@ public static class PhysicalFootprintWeights
                 // TODO Static useless value for the moment on the grid
                 if (passFeet[arrowIndex])
                 {
-                    grid[y, x] = 2f;
+                    grid[y, x] = 1f + speedForce;
                 }
                 else
                 {
-                    grid[y, x] = 0f;
+                    grid[y, x] = Mathf.Max(1f - speedForce, 0);
                 }
             }
             
@@ -67,22 +64,59 @@ public static class PhysicalFootprintWeights
         return xyTested < minGrid || xyTested >= maxGrid;
     }
 
+    // Pass on the grid after the main process is done. Will improve visual results
+    private static float[,] PostTreatmentWeights(float[,] weightsBump, int minGrid, int maxGrid)
+    {
+        // Keep the right volume
+        float sum = 0;
+        float contourCount = 0; 
+        for (int i = minGrid; i < maxGrid; i++)
+        {
+            for (int j = minGrid; j < maxGrid; j++)
+            {
+                if (weightsBump[i, j] > 0)
+                {
+                    sum += weightsBump[i, j];
+                    contourCount++;
+                }
+            }
+        }
+
+        float ratio = sum / contourCount; 
+        
+        for (int i = minGrid; i < maxGrid; i++)
+        {
+            for (int j = minGrid; j < maxGrid; j++)
+            {
+                if (weightsBump[i, j] > 0)
+                {
+                    weightsBump[i, j] = ratio; 
+                }
+            }
+        }
+
+        return weightsBump;
+    }
+        
     // **
     // Will progress on the weight grid in the direction of the speed vector and change weights value depending 
     // on speed magnitude and if the weights is before or after the feet in the speed direction
     // **
-    public static float[,] UpdateWeightsUsingSpeed(float[,] weightsBump, int[,] heightMapBool, int gridSize, Vector3 speed)
+    public static float[,] UpdateWeightsUsingSpeed(float[,] weightsBump, int[,] heightMapBool, int gridSize,
+        Vector3 speed)
     {
         int minGrid = 0;
         int maxGrid = 2 * gridSize + 1;
         return UpdateWeightsUsingSpeed(weightsBump, heightMapBool, minGrid, maxGrid, speed);
     }
+    
 
     public static float[,] UpdateWeightsUsingSpeed(float[,] weightsBump, int[,] heightMapBool, int minGrid, int maxGrid,
         Vector3 speed)
     {
-        // TODO Take the number of cell in the contour to preserve volume moved
-        // TODO Use the speed vector to determine the value of each cell
+        // TODO find the right value
+        float speedForce = speed.magnitude * 1f; 
+        //Debug.Log(speedForce);
 
         if (Vector3.Magnitude(speed) < 0.1)
         {
@@ -144,7 +178,8 @@ public static class PhysicalFootprintWeights
         // Iterate on all the grid
         int touchEnd = 0;
         int max_iter = 50;
-        int iter = 0; 
+        int iter = 0;
+        int contourCount = 0; 
         while (touchEnd < sizeGrid * 2 && iter < max_iter)
         {
             // Iterate on all "arrows"
@@ -158,11 +193,11 @@ public static class PhysicalFootprintWeights
                 {
                     // Move in y direction than in x
                     gridWaysStopped[arrowIndex] = moveArrow(heightMapBool, ref weightsBump, minGrid, maxGrid,
-                        ref gridWays, ref gridWaysPassFeet, arrowIndex, ySpeed, true);
+                        ref gridWays, ref gridWaysPassFeet, arrowIndex, ySpeed, true,speedForce);
                     if (!gridWaysStopped[arrowIndex])
                     {
                         gridWaysStopped[arrowIndex] = moveArrow(heightMapBool, ref weightsBump, minGrid, maxGrid,
-                            ref gridWays, ref gridWaysPassFeet, arrowIndex, xSpeed, false);
+                            ref gridWays, ref gridWaysPassFeet, arrowIndex, xSpeed, false, speedForce);
                     }
 
                     touchEnd = gridWaysStopped[arrowIndex] ? touchEnd + 1 : touchEnd;
@@ -171,10 +206,10 @@ public static class PhysicalFootprintWeights
                 {
                     // Move in x direction than in y
                     gridWaysStopped[arrowIndex] = moveArrow(heightMapBool, ref weightsBump, minGrid, maxGrid,
-                        ref gridWays, ref gridWaysPassFeet, arrowIndex, xSpeed, false);
+                        ref gridWays, ref gridWaysPassFeet, arrowIndex, xSpeed, false, speedForce);
                     if (!gridWaysStopped[arrowIndex])
                         gridWaysStopped[arrowIndex] = moveArrow(heightMapBool, ref weightsBump, minGrid, maxGrid,
-                            ref gridWays, ref gridWaysPassFeet, arrowIndex, ySpeed, true);
+                            ref gridWays, ref gridWaysPassFeet, arrowIndex, ySpeed, true, speedForce);
                     touchEnd = gridWaysStopped[arrowIndex] ? touchEnd + 1 : touchEnd;
                 }
             }
@@ -184,14 +219,15 @@ public static class PhysicalFootprintWeights
         
         if (iter >= max_iter)
             Debug.LogWarning("[UpdateWeights] REACH MAX ITERATION ON GRID");
-        
+
+        weightsBump = PostTreatmentWeights(weightsBump, minGrid, maxGrid);
         //PrintGrid(weightsBump, minGrid, maxGrid);
         return weightsBump;
     }
 
+    // [Debug] Print the specified grid in the console
     private static void PrintGrid(float[,] grid, int start, int end)
     {
-        // Print for debug
         string line = ""; 
         for (int i = start; i < end; i++)
         {

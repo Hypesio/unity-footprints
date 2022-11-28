@@ -505,10 +505,10 @@ public class PhysicalFootprint : TerrainBrushPhysicalFootprint
         if (applyModulatedBumps)
         {
             Vector3 speed = DeformTerrainMaster.Instance.feetSpeedLeft;
-            Debug.Log("[Deform] Left feet speed " + speed);
+            //Debug.Log("[Deform] Left feet speed " + speed);
             weightsBumpLeft = PhysicalFootprintWeights.UpdateWeightsUsingSpeed(weightsBumpLeft, heightMapLeftBool,
                 gridSize, speed);
-            Debug.Log("[Deform] right feet speed " + speed);
+            //Debug.Log("[Deform] right feet speed " + speed);
             speed = DeformTerrainMaster.Instance.feetSpeedRight;
             weightsBumpRight = PhysicalFootprintWeights.UpdateWeightsUsingSpeed(weightsBumpRight, heightMapRightBool,
                 gridSize, speed);
@@ -817,7 +817,7 @@ public class PhysicalFootprint : TerrainBrushPhysicalFootprint
         float bumpDisplacement = right ? bumpDisplacementRight : bumpDisplacementLeft;
         double heightCellDisplacementYoung = right ? heightCellDisplacementYoungRight : heightCellDisplacementYoungLeft;
         float displacement = right ? displacementRight : displacementLeft;
-        double bumpHeightDeformation = right ? bumpHeightDeformationRight : bumpDisplacementLeft;
+        double bumpHeightDeformation = right ? bumpDisplacementRight : bumpDisplacementLeft;
         
         // 1. Apply frame-per-frame deformation ("displacement")
         for (int zi = -gridSize; zi <= gridSize; zi++)

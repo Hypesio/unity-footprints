@@ -314,52 +314,75 @@ public class DeformTerrainMaster : MonoBehaviour
 
     #region Instance Methods
 
+    private void InitParticleSpecs(ParticleSystem.MainModule mainPS, ParticleSystem.ShapeModule shapePS, ParticleSystem currentPS, string currentTerrain, float currentFeetSpeed)
+    {
+        currentPS.emissionRate = getEmissionRate(currentFeetSpeed, currentTerrain);
+        mainPS.startSize = getStartSize(currentTerrain);
+        shapePS.angle = getShapeAngle(currentTerrain);
+
+
+        // TODO: Take material texture to render particles
+        /*
+        BillboardRenderer billboardRenderer = rightFootPS.GetComponent<BillboardRenderer>();
+        billboardRenderer.enabled = true;
+        billboardRenderer.billboard.material = terrain.GetComponent<Terrain>().materialTemplate;
+        */
+
+        // TODO: Fix character speed parameter?
+        if (currentTerrain == "Dry Sand")
+        {
+            mainPS.startLifetime = UnityEngine.Random.Range(1.4f, currentFeetSpeed * 1.8f);
+
+            AnimationCurve curve = new AnimationCurve();
+            curve.AddKey(0, 1); // start, need to be 1
+            curve.AddKey(0.7f, 1);
+            curve.AddKey(1, 0); // end, need to be 0 for the particle to disappear
+
+            var noise = currentPS.noise; // https://docs.unity3d.com/Manual/PartSysNoiseModule.html
+            noise.enabled = true;
+            noise.strength = 0.4f;
+            noise.frequency = 2f;
+
+            var sizeOverLifetime = currentPS.sizeOverLifetime; // https://docs.unity3d.com/Manual/PartSysSizeOverLifeModule.html
+            sizeOverLifetime.enabled = true;
+            sizeOverLifetime.size = new ParticleSystem.MinMaxCurve(getStartSize(currentTerrain), curve);
+        }
+        else if (currentTerrain == "Mud")
+        {
+            mainPS.startLifetime = UnityEngine.Random.Range(0.7f, 1f);
+
+            AnimationCurve curve = new AnimationCurve();
+            curve.AddKey(0, 1);
+            curve.AddKey(0.9f, 1);
+            curve.AddKey(1, 0);
+
+            var sizeOverLifetime = currentPS.sizeOverLifetime;
+            sizeOverLifetime.enabled = true;
+            sizeOverLifetime.size = new ParticleSystem.MinMaxCurve(getStartSize(currentTerrain), curve);
+        }
+    }
+
     private void ApplyFootParticles()
     {
-        // // If foot grounded we unlock particle system so that it can be played again
-        // if (isLeftFootGrounded)
-        //     leftFootParticlesLock = false;
-        // if (isRightFootGrounded)
-        //     rightFootParticlesLock = false;
-        //
-        // // If foot is not grounded we lock particle system so that it can't be played again
-        // if (momentumForceLeft.y < 0.0f)
-        // {
-        //     leftFootParticlesLock = true;
-        //     leftFootPS.Play();
-        // }
-        // if (momentumForceRight.y < 0.0f)
-        // {
-        //     rightFootParticlesLock = true;
-        //     rightFootPS.Play();
-        // }
-
-        var t = myBipedalCharacter.GetComponent<RigidBodyControllerSimpleAnimator>().currentTerrain.name;
+        string terrainName = myBipedalCharacter.GetComponent<RigidBodyControllerSimpleAnimator>().currentTerrain.name;
 
         if (wasLeftFootGrounded && !isLeftFootGrounded)
         {
-            leftFootPS.emissionRate = getEmissionRate(feetSpeedLeft.y, t);
-            var mainModule = leftFootPS.main;
-            mainModule.startSize = getStartSize(t);
-            var ps_shape = leftFootPS.shape;
-            ps_shape.angle = getShapeAngle(t);
+            ParticleSystem.MainModule mainPS = leftFootPS.main;
+            ParticleSystem.ShapeModule shapePS = leftFootPS.shape;
+            InitParticleSpecs(mainPS, shapePS, leftFootPS, terrainName, feetSpeedLeft.y); // TODO: Take better velocity than feetSpeed y axis
             leftFootPS.Play();
         }
-
         wasLeftFootGrounded = isLeftFootGrounded;
-        
+
         if (wasRightFootGrounded && !isRightFootGrounded)
         {
-            rightFootPS.emissionRate = getEmissionRate(feetSpeedRight.y, t);
-            var mainModule = rightFootPS.main;
-            mainModule.startSize = getStartSize(t);
-            var ps_shape = rightFootPS.shape;
-            ps_shape.angle = getShapeAngle(t);
+            ParticleSystem.MainModule mainPS = rightFootPS.main;
+            ParticleSystem.ShapeModule shapePS = rightFootPS.shape;
+            InitParticleSpecs(mainPS, shapePS, rightFootPS, terrainName, feetSpeedRight.y);
             rightFootPS.Play();
         }
-
         wasRightFootGrounded = isRightFootGrounded;
-        
     }
 
     private float getEmissionRate(float speed, string terrain)

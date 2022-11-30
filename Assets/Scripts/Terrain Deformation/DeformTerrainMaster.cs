@@ -61,15 +61,19 @@ public class DeformTerrainMaster : MonoBehaviour
     public float poissonRatioSnow = 0.1f;
     public int filterIterationsSnow = 0;
     public int quantitySnow = 10;
-    public float sizeSnow = 0.08f;
+    public float sizeSnow = 0.2f;
+    public float densitySnow = 10;
+    public float projectionAngleSnow = 15;
     [Space(10)]
     public double youngModulusDrySand = 600000;
     public float timeDrySand = 0.3f;
     public bool bumpSand = false;
     public float poissonRatioSand = 0.2f;
     public int filterIterationsSand = 5;
-    public int quantityDrySand = 20;
-    public float sizeDrySand = 0.04f;
+    public int quantityDrySand = 40;
+    public float sizeDrySand = 0.02f;
+    public float densityDrySand = 0.5f;
+    public float projectionAngleDrySand = 30;
     [Space(10)]
     public double youngModulusMud = 350000;
     public float timeMud = 0.8f;
@@ -78,6 +82,8 @@ public class DeformTerrainMaster : MonoBehaviour
     public int filterIterationsMud = 2;
     public int quantityMud = 10;
     public float sizeMud = 0.05f;
+    public float densityMud = 1;
+    public float projectionAngleMud = 45;
     [Space(10)]
     public double youngModulusSoil = 350000;
     public float timeSoil = 0.8f;
@@ -86,6 +92,8 @@ public class DeformTerrainMaster : MonoBehaviour
     public int filterIterationsSoil = 2;
     public int quantitySoil = 4;
     public float sizeSoil = 0.05f;
+    public float densitySoil = 1;
+    public float projectionAngleSoil = 22;
 
     [Header("Bipedal - System Info")]
     [Space(20)]
@@ -333,6 +341,8 @@ public class DeformTerrainMaster : MonoBehaviour
             leftFootPS.emissionRate = getEmissionRate(feetSpeedLeft.y, t);
             var mainModule = leftFootPS.main;
             mainModule.startSize = getStartSize(t);
+            var ps_shape = leftFootPS.shape;
+            ps_shape.angle = getShapeAngle(t);
             leftFootPS.Play();
         }
 
@@ -343,6 +353,8 @@ public class DeformTerrainMaster : MonoBehaviour
             rightFootPS.emissionRate = getEmissionRate(feetSpeedRight.y, t);
             var mainModule = rightFootPS.main;
             mainModule.startSize = getStartSize(t);
+            var ps_shape = rightFootPS.shape;
+            ps_shape.angle = getShapeAngle(t);
             rightFootPS.Play();
         }
 
@@ -357,15 +369,19 @@ public class DeformTerrainMaster : MonoBehaviour
         {
             case "Snow":
                 emissionRate += quantitySnow;
+                emissionRate /= densitySnow;
                 break;
             case "Dry Sand":
                 emissionRate += quantityDrySand;
+                emissionRate /= densityDrySand;
                 break;
             case "Mud":
                 emissionRate += quantityMud;
+                emissionRate /= densityMud;
                 break;
             default:
                 emissionRate += quantitySoil;
+                emissionRate /= densitySoil;
                 break;
         }
         return emissionRate;
@@ -383,6 +399,21 @@ public class DeformTerrainMaster : MonoBehaviour
                 return sizeMud;
             default:
                 return sizeSoil;
+        }
+    }
+
+    private float getShapeAngle(string terrain)
+    {
+        switch (terrain)
+        {
+            case "Snow":
+                return projectionAngleSnow;
+            case "Dry Sand":
+                return projectionAngleDrySand;
+            case "Mud":
+                return projectionAngleMud;
+            default:
+                return projectionAngleSoil;
         }
     }
 

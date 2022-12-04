@@ -36,6 +36,7 @@ public static class PhysicalFootprintWeights
             if (heightBoolMap[y, x] == (int)PhysicalFootprint.CellState.Contact)
             {
                 passFeet[arrowIndex] = true;
+                //grid[y, x] = 1f;
             }
             // If we are on a contour
             else if (heightBoolMap[y, x] == (int)PhysicalFootprint.CellState.Contour)
@@ -43,11 +44,11 @@ public static class PhysicalFootprintWeights
                 // TODO Static useless value for the moment on the grid
                 if (passFeet[arrowIndex])
                 {
-                    grid[y, x] = 1f + speedForce;
+                    grid[y, x] = 2f; //1f + speedForce;
                 }
                 else
                 {
-                    grid[y, x] = Mathf.Max(1f - speedForce, 0);
+                    grid[y, x] = 0f; //Mathf.Max(1f - speedForce, 0);
                 }
             }
             
@@ -65,11 +66,10 @@ public static class PhysicalFootprintWeights
     }
 
     // Pass on the grid after the main process is done. Will improve visual results
-    private static float[,] PostTreatmentWeights(float[,] weightsBump, int minGrid, int maxGrid)
+    private static float[,] PostTreatmentWeights(float[,] weightsBump, int minGrid, int maxGrid, int nbNeighboor)
     {
         // Keep the right volume
         float sum = 0;
-        float contourCount = 0; 
         for (int i = minGrid; i < maxGrid; i++)
         {
             for (int j = minGrid; j < maxGrid; j++)
@@ -77,12 +77,11 @@ public static class PhysicalFootprintWeights
                 if (weightsBump[i, j] > 0)
                 {
                     sum += weightsBump[i, j];
-                    contourCount++;
                 }
             }
         }
 
-        float ratio = sum / contourCount; 
+        float ratio = sum / (nbNeighboor); 
         
         for (int i = minGrid; i < maxGrid; i++)
         {
@@ -90,7 +89,7 @@ public static class PhysicalFootprintWeights
             {
                 if (weightsBump[i, j] > 0)
                 {
-                    weightsBump[i, j] = ratio; 
+                    weightsBump[i, j] /= ratio; 
                 }
             }
         }
@@ -103,16 +102,16 @@ public static class PhysicalFootprintWeights
     // on speed magnitude and if the weights is before or after the feet in the speed direction
     // **
     public static float[,] UpdateWeightsUsingSpeed(float[,] weightsBump, int[,] heightMapBool, int gridSize,
-        Vector3 speed)
+        Vector3 speed, int nbNeighboor = 1)
     {
         int minGrid = 0;
         int maxGrid = 2 * gridSize + 1;
-        return UpdateWeightsUsingSpeed(weightsBump, heightMapBool, minGrid, maxGrid, speed);
+        return UpdateWeightsUsingSpeed(weightsBump, heightMapBool, minGrid, maxGrid, speed, nbNeighboor);
     }
     
 
     public static float[,] UpdateWeightsUsingSpeed(float[,] weightsBump, int[,] heightMapBool, int minGrid, int maxGrid,
-        Vector3 speed)
+        Vector3 speed, int nbNeighboor)
     {
         // TODO find the right value
         float speedForce = speed.magnitude * 1f; 
@@ -219,8 +218,10 @@ public static class PhysicalFootprintWeights
         
         if (iter >= max_iter)
             Debug.LogWarning("[UpdateWeights] REACH MAX ITERATION ON GRID");
-
-        weightsBump = PostTreatmentWeights(weightsBump, minGrid, maxGrid);
+        
+        //PrintGrid(weightsBump, minGrid, maxGrid);
+        //Debug.Log("After treatment");
+        weightsBump = PostTreatmentWeights(weightsBump, minGrid, maxGrid, nbNeighboor);
         //PrintGrid(weightsBump, minGrid, maxGrid);
         return weightsBump;
     }
@@ -233,7 +234,7 @@ public static class PhysicalFootprintWeights
         {
             for (int j = start; j < end; j++)
             {
-                line += grid[i, j] + " | ";
+                line += grid[i, j].ToString("0.0") + " | ";
             }
 
             line += '\n';
@@ -251,7 +252,7 @@ public static class PhysicalFootprintWeights
 
         float[,] grid = new float[gridSize, gridSize];
         
-        grid = UpdateWeightsUsingSpeed(grid, heightBoolMap,0, gridSize, speed);
+        grid = UpdateWeightsUsingSpeed(grid, heightBoolMap,0, gridSize, speed, 1);
         
         PrintGrid(grid, 0, gridSize);
     }

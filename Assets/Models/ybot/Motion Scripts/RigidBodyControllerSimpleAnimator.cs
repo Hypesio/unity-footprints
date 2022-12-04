@@ -194,7 +194,7 @@ public class RigidBodyControllerSimpleAnimator : MonoBehaviour
             // Check if the character should slide on the floor due to the friction force
             _frictionModel.maxDegreeAdherence = tryAngle;
             Vector3 normalRight = _frictionModel.GetFloorNormalFromFeet(true, Ground);
-            Vector3 normalLeft = _frictionModel.GetFloorNormalFromFeet(true, Ground);
+            Vector3 normalLeft = _frictionModel.GetFloorNormalFromFeet(false, Ground);
             Vector3 resNormal = (normalLeft + normalRight);
             if (normalLeft != Vector3.zero && normalRight != Vector3.zero)
             {

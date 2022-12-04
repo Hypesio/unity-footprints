@@ -25,17 +25,17 @@ public class FrictionModel
         
         if (!isSliding && thetaAngle > maxDegreeAdherence)
         {
-            Debug.Log("Normal " + reactionNormal + " Friction " + reactionFriction + " Theta angle " + thetaAngle);
-            Debug.DrawRay(DeformTerrainMaster.Instance.leftFootCollider.transform.position, totalReaction / 2, Color.blue, 1f);
-            Debug.Log("Start sliding");
+            //Debug.Log("Normal " + reactionNormal + " Friction " + reactionFriction + " Theta angle " + thetaAngle);
+            //Debug.DrawRay(DeformTerrainMaster.Instance.leftFootCollider.transform.position, totalReaction / 2, Color.blue, 1f);
+            //Debug.Log("Start sliding");
             speedSlide = (speedCharacter.magnitude - totalReaction.magnitude) * thetaAngle;
             isSliding = true;
         }
         else if (isSliding && thetaAngle < maxDegreeAdherence * 0.80f) // Random value here
         {
-            Debug.Log("Normal " + reactionNormal + " Friction " + reactionFriction + " Theta angle " + thetaAngle);
-            Debug.DrawRay(DeformTerrainMaster.Instance.leftFootCollider.transform.position, totalReaction / 2, Color.blue, 1f);
-            Debug.Log("Stop sliding");
+            //Debug.Log("Normal " + reactionNormal + " Friction " + reactionFriction + " Theta angle " + thetaAngle);
+            //Debug.DrawRay(DeformTerrainMaster.Instance.leftFootCollider.transform.position, totalReaction / 2, Color.blue, 1f);
+            //Debug.Log("Stop sliding");
             isSliding = false;
         }
         
@@ -54,7 +54,6 @@ public class FrictionModel
         {
             RaycastHit hit;
             Ray ray = new Ray(collider.transform.position, Vector3.down);
-            Debug.DrawRay(collider.transform.position, Vector3.down / 2, Color.green, 0.5f);
             if (Physics.Raycast(ray, out hit, 10, ground))
             {
                 return hit.normal;

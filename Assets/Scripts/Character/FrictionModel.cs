@@ -42,7 +42,7 @@ public class FrictionModel
         return isSliding; 
     }
 
-    public Vector3 GetFloorNormalFromFeet(bool right, LayerMask ground)
+    static public Vector3 GetFloorNormalFromFeet(bool right, LayerMask ground)
     {
         bool grounded = right
             ? DeformTerrainMaster.Instance.isRightFootGrounded

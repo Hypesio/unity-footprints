@@ -36,19 +36,17 @@ public static class PhysicalFootprintWeights
             if (heightBoolMap[y, x] == (int)PhysicalFootprint.CellState.Contact)
             {
                 passFeet[arrowIndex] = true;
-                //grid[y, x] = 1f;
             }
             // If we are on a contour
             else if (heightBoolMap[y, x] == (int)PhysicalFootprint.CellState.Contour)
             {
-                // TODO Static useless value for the moment on the grid
                 if (passFeet[arrowIndex])
                 {
-                    grid[y, x] = 2f; //1f + speedForce;
+                    grid[y, x] = Mathf.Min(1f + speedForce, 2f);
                 }
                 else
                 {
-                    grid[y, x] = 0f; //Mathf.Max(1f - speedForce, 0);
+                    grid[y, x] = Mathf.Max(1f - speedForce, 0);
                 }
             }
             
@@ -114,8 +112,8 @@ public static class PhysicalFootprintWeights
         Vector3 speed, int nbNeighboor)
     {
         // TODO find the right value
-        float speedForce = speed.magnitude * 1f; 
-        //Debug.Log(speedForce);
+        float speedForce = Mathf.Clamp(speed.magnitude / 2.5f, 0, 1); 
+        Debug.Log(speedForce);
 
         if (Vector3.Magnitude(speed) < 0.1)
         {

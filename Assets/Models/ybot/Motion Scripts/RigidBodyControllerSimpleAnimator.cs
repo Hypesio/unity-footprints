@@ -191,22 +191,8 @@ public class RigidBodyControllerSimpleAnimator : MonoBehaviour
             if (Input.GetKey(KeyCode.Space))
                 moveDirection *= runSpeed;
             
-            // Check if the character should slide on the floor due to the friction force
-            _frictionModel.maxDegreeAdherence = tryAngle;
-            Vector3 normalRight = _frictionModel.GetFloorNormalFromFeet(true, Ground);
-            Vector3 normalLeft = _frictionModel.GetFloorNormalFromFeet(false, Ground);
-            Vector3 resNormal = (normalLeft + normalRight);
-            if (normalLeft != Vector3.zero && normalRight != Vector3.zero)
-            {
-                resNormal /= 2.0f;
-            }
-
-            if (_frictionModel.CheckForces(Vector3.down, resNormal))
-            {
-                moveDirection = Vector3.Normalize(Vector3.ProjectOnPlane(Vector3.down, resNormal));
-                moveDirection *= -_frictionModel.speedSlide * Time.deltaTime;
-            }
-
+            CheckIfShouldSlideOnSlopes();
+            
             transform.position += moveDirection * speedTransform * Time.deltaTime;
         }
         else if (motion == motionMode.applyRigidBodyVelocity)
@@ -225,6 +211,8 @@ public class RigidBodyControllerSimpleAnimator : MonoBehaviour
         else if (motion == motionMode.applyRootMotion)
         {
             _anim.applyRootMotion = true;
+            moveDirection = Vector3.zero;
+            CheckIfShouldSlideOnSlopes();
         }
 
         #endregion
@@ -348,6 +336,26 @@ public class RigidBodyControllerSimpleAnimator : MonoBehaviour
         if(motion == motionMode.applyRigidBodyVelocity)
         {
             _anim.SetFloat("SpeedAnimation", (_rb.velocity.sqrMagnitude * animationMultiplier), 0.0f, Time.deltaTime);
+        }
+    }
+
+    private void CheckIfShouldSlideOnSlopes()
+    {
+        // Check if the character should slide on the floor due to the friction force
+        _frictionModel.maxDegreeAdherence = tryAngle;
+        Vector3 normalRight = _frictionModel.GetFloorNormalFromFeet(true, Ground);
+        Vector3 normalLeft = _frictionModel.GetFloorNormalFromFeet(false, Ground);
+        Vector3 resNormal = (normalLeft + normalRight);
+        if (normalLeft != Vector3.zero && normalRight != Vector3.zero)
+        {
+            resNormal /= 2.0f;
+        }
+        
+        // Enough forces to slide
+        if (_frictionModel.CheckForces(Vector3.down, resNormal))
+        {
+            moveDirection = Vector3.Normalize(Vector3.ProjectOnPlane(Vector3.down, resNormal));
+            moveDirection *= -_frictionModel.speedSlide * Time.deltaTime;
         }
     }
 

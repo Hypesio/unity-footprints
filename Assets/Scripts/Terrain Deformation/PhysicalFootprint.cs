@@ -373,6 +373,9 @@ public class PhysicalFootprint : TerrainBrushPhysicalFootprint
                         {
                             for (int xi_sub = -neighboursSearchArea; xi_sub <= neighboursSearchArea; xi_sub++)
                             {
+                                if (zi + zi_sub < -gridSize || zi + zi_sub > gridSize || xi + xi_sub < -gridSize ||
+                                    xi + xi_sub > gridSize)
+                                    continue;
                                 // C. If there is a contact point around the cell
                                 if (heightMapRightBool[zi + zi_sub + gridSize, xi + xi_sub + gridSize] == (int)CellState.Contact)
                                 {
@@ -421,6 +424,10 @@ public class PhysicalFootprint : TerrainBrushPhysicalFootprint
                         {
                             for (int xi_sub = -neighboursSearchArea; xi_sub <= neighboursSearchArea; xi_sub++)
                             {
+                                if (zi + zi_sub < -gridSize || zi + zi_sub > gridSize || xi + xi_sub < -gridSize ||
+                                    xi + xi_sub > gridSize)
+                                    continue;
+                                
                                 if (heightMapLeftBool[zi + zi_sub + gridSize, xi + xi_sub + gridSize] == 2)
                                 {
                                     Vector3 rayGridLeft = new Vector3(xLeft + xi, terrain.Get(xLeft + xi, zLeft + zi) - offsetRay, zLeft + zi);

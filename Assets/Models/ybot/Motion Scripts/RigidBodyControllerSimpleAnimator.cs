@@ -192,7 +192,7 @@ public class RigidBodyControllerSimpleAnimator : MonoBehaviour
                 moveDirection *= runSpeed;
             
             CheckIfShouldSlideOnSlopes();
-            
+
             transform.position += moveDirection * speedTransform * Time.deltaTime;
         }
         else if (motion == motionMode.applyRigidBodyVelocity)

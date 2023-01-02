@@ -664,7 +664,7 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 537267395}
-  m_LocalRotation: {x: 0.012662813, y: 0.9814725, z: -0.17797485, w: 0.06983124}
+  m_LocalRotation: {x: 0.0126628205, y: 0.9814725, z: -0.17797485, w: 0.069831274}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
@@ -2212,8 +2212,8 @@ MonoBehaviour:
   bumpSand: 1
   poissonRatioSand: 0.45
   filterIterationsSand: 15
-  quantityDrySand: 35
-  sizeDrySand: 0.7
+  quantityDrySand: 300
+  sizeDrySand: 0.3
   densityDrySand: 0.5
   projectionAngleDrySand: 30
   drySandMaterials:

@@ -64,6 +64,7 @@ public class DeformTerrainMaster : MonoBehaviour
     public float sizeSnow = 0.2f;
     public float densitySnow = 10;
     public float projectionAngleSnow = 15;
+    public List<Material> snowMaterials = new List<Material>();
     [Space(10)]
     public double youngModulusDrySand = 600000;
     public float timeDrySand = 0.3f;
@@ -74,6 +75,7 @@ public class DeformTerrainMaster : MonoBehaviour
     public float sizeDrySand = 0.02f;
     public float densityDrySand = 0.5f;
     public float projectionAngleDrySand = 30;
+    public List<Material> drySandMaterials = new List<Material>();
     [Space(10)]
     public double youngModulusMud = 350000;
     public float timeMud = 0.8f;
@@ -81,9 +83,10 @@ public class DeformTerrainMaster : MonoBehaviour
     public float poissonRatioMud = 0.4f;
     public int filterIterationsMud = 2;
     public int quantityMud = 10;
-    public float sizeMud = 0.05f;
+    public float sizeMud = 1.5f;
     public float densityMud = 1;
     public float projectionAngleMud = 45;
+    public List<Material> mudMaterials = new List<Material>();
     [Space(10)]
     public double youngModulusSoil = 350000;
     public float timeSoil = 0.8f;
@@ -319,47 +322,85 @@ public class DeformTerrainMaster : MonoBehaviour
         currentPS.emissionRate = getEmissionRate(currentFeetSpeed, currentTerrain);
         mainPS.startSize = getStartSize(currentTerrain);
         shapePS.angle = getShapeAngle(currentTerrain);
-
-
-        // TODO: Take material texture to render particles
-        /*
-        BillboardRenderer billboardRenderer = rightFootPS.GetComponent<BillboardRenderer>();
-        billboardRenderer.enabled = true;
-        billboardRenderer.billboard.material = terrain.GetComponent<Terrain>().materialTemplate;
-        */
+        SetFeetParticleMaterial(currentTerrain);
 
         // TODO: Fix character speed parameter?
         if (currentTerrain == "Dry Sand")
         {
             mainPS.startLifetime = UnityEngine.Random.Range(1.4f, currentFeetSpeed * 1.8f);
-
-            AnimationCurve curve = new AnimationCurve();
-            curve.AddKey(0, 1); // start, need to be 1
-            curve.AddKey(0.7f, 1);
-            curve.AddKey(1, 0); // end, need to be 0 for the particle to disappear
+            mainPS.startColor = new Color(1f, 1f, 1f, 0f); // otherwise the particles are black
 
             var noise = currentPS.noise; // https://docs.unity3d.com/Manual/PartSysNoiseModule.html
             noise.enabled = true;
             noise.strength = 0.4f;
             noise.frequency = 2f;
 
-            var sizeOverLifetime = currentPS.sizeOverLifetime; // https://docs.unity3d.com/Manual/PartSysSizeOverLifeModule.html
-            sizeOverLifetime.enabled = true;
-            sizeOverLifetime.size = new ParticleSystem.MinMaxCurve(getStartSize(currentTerrain), curve);
+            var collision = currentPS.collision;
+            collision.enabled = true;
+            collision.type = ParticleSystemCollisionType.World;
+            collision.mode = ParticleSystemCollisionMode.Collision3D;
+            collision.dampen = 0f;
+            collision.bounce = 0.05f;
+            collision.radiusScale = 0.1f;
+            collision.quality = ParticleSystemCollisionQuality.High;
         }
         else if (currentTerrain == "Mud")
         {
             mainPS.startLifetime = UnityEngine.Random.Range(0.7f, 1f);
+            mainPS.startColor = new Color(1f, 1f, 1f, 1f); // otherwise the particles are not rendered (???)
 
-            AnimationCurve curve = new AnimationCurve();
-            curve.AddKey(0, 1);
-            curve.AddKey(0.9f, 1);
-            curve.AddKey(1, 0);
+            var noise = currentPS.noise;
+            noise.enabled = false;
 
-            var sizeOverLifetime = currentPS.sizeOverLifetime;
-            sizeOverLifetime.enabled = true;
-            sizeOverLifetime.size = new ParticleSystem.MinMaxCurve(getStartSize(currentTerrain), curve);
+            var collision = currentPS.collision;
+            collision.enabled = true;
+            collision.type = ParticleSystemCollisionType.World;
+            collision.mode = ParticleSystemCollisionMode.Collision3D;
+            collision.dampen = 0.1f;
+            collision.bounce = 0.1f;
+            collision.radiusScale = 0.1f;
+            collision.quality = ParticleSystemCollisionQuality.High;
         }
+        else if (currentTerrain == "Main Terrain - Snow")
+        {
+            mainPS.startLifetime = UnityEngine.Random.Range(0.7f, 1f);
+            mainPS.startColor = new Color(1f, 1f, 1f, 1f);
+
+            var collision = currentPS.collision;
+            collision.enabled = true;
+            collision.type = ParticleSystemCollisionType.World;
+            collision.mode = ParticleSystemCollisionMode.Collision3D;
+            collision.dampen = 0.1f;
+            collision.bounce = 0.1f;
+            collision.radiusScale = 0.1f;
+            collision.quality = ParticleSystemCollisionQuality.High;
+
+            var noise = currentPS.noise;
+            noise.enabled = false;
+        }
+    }
+
+    private void SetFeetParticleMaterial(string material)
+    {
+        Material mat = mudMaterials[0];
+        switch(material)
+        {
+            case "Mud":
+                mat = mudMaterials[UnityEngine.Random.Range(0, mudMaterials.Count)];
+                break;
+            case "Dry Sand":
+                mat = drySandMaterials[UnityEngine.Random.Range(0, drySandMaterials.Count)];
+                break;
+            case "Main Terrain - Snow":
+                mat = snowMaterials[UnityEngine.Random.Range(0, snowMaterials.Count)];
+                break;
+            case "Soil":
+                mat = mudMaterials[UnityEngine.Random.Range(0, mudMaterials.Count)];
+                break;
+        }
+
+        rightFootPS.GetComponent<ParticleSystemRenderer>().material = mat;
+        leftFootPS.GetComponent<ParticleSystemRenderer>().material = mat;
     }
 
     private void ApplyFootParticles()
@@ -390,7 +431,7 @@ public class DeformTerrainMaster : MonoBehaviour
         float emissionRate = 100 * speed;
         switch (terrain)
         {
-            case "Snow":
+            case "Main Terrain - Snow":
                 emissionRate += quantitySnow;
                 emissionRate /= densitySnow;
                 break;
@@ -414,7 +455,7 @@ public class DeformTerrainMaster : MonoBehaviour
     {
         switch (terrain)
         {
-            case "Snow":
+            case "Main Terrain - Snow":
                 return sizeSnow;
             case "Dry Sand":
                 return sizeDrySand;
@@ -429,7 +470,7 @@ public class DeformTerrainMaster : MonoBehaviour
     {
         switch (terrain)
         {
-            case "Snow":
+            case "Main Terrain - Snow":
                 return projectionAngleSnow;
             case "Dry Sand":
                 return projectionAngleDrySand;

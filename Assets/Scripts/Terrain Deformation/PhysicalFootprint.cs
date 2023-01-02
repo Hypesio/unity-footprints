@@ -7,6 +7,7 @@
    * Last update: 07/02/2022
 *****************************************************/
 
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -469,33 +470,34 @@ public class PhysicalFootprint : TerrainBrushPhysicalFootprint
         
         if (applyModulatedBumps)
         {
+            Vector3 speed = DeformTerrainMaster.Instance.chestSpeed;
+            //Vector3 speed = (DeformTerrainMaster.Instance.feetSpeedLeft + DeformTerrainMaster.Instance.feetSpeedRight) / 2;
             LayerMask ground = LayerMask.GetMask("Ground");
             if (IsLeftFootGrounded)
             {
-                Vector3 speed = DeformTerrainMaster.Instance.feetSpeedLeft;
+                // Vector3 speed = DeformTerrainMaster.Instance.feetSpeedLeft;
                 //Debug.Log("[Deform] Left feet speed " + speed);
                 
                 Vector3 normalLeft = FrictionModel.GetFloorNormalFromFeet(false, ground);
-                Vector3 moveDirectionLeft = Vector3.Normalize(Vector3.ProjectOnPlane(Vector3.down, normalLeft));
-                Debug.Log("[Deform] moveDirectionLeft " + moveDirectionLeft.y);
+                Vector3 slopeLeft = Vector3.Normalize(Vector3.ProjectOnPlane(Vector3.down, normalLeft));
+                Debug.Log("[Deform] moveDirectionLeft " + DeformTerrainMaster.Instance.chestSpeed);
                 
-                weightsBumpLeft = PhysicalFootprintWeights.UpdateWeightsUsingSpeed(weightsBumpLeft, heightMapLeftBool,
-                    gridSize, moveDirectionLeft, neighbourCellsLeft);
+                weightsBumpLeft = PhysicalFootprintWeights.UpdateWeightsUsingFloor(weightsBumpLeft, heightMapLeftBool,
+                    gridSize, speed, neighbourCellsLeft);
                 
             }
 
             if (IsRightFootGrounded)
-            { ;
-                Vector3 speed = DeformTerrainMaster.Instance.feetSpeedRight;
+            {
+                // Vector3 speed = DeformTerrainMaster.Instance.feetSpeedRight;
                 //Debug.Log("[Deform] right feet speed " + speed)
                 
                 Vector3 normalRight = FrictionModel.GetFloorNormalFromFeet(true, ground);
-                Vector3 moveDirectionRight = Vector3.Normalize(Vector3.ProjectOnPlane(Vector3.down, normalRight));
-                Debug.Log("[Deform] moveDirectionRight " + moveDirectionRight.y);
+                Vector3 slopeRight = Vector3.Normalize(Vector3.ProjectOnPlane(Vector3.down, normalRight));
+                // Debug.Log("[Deform] moveDirectionRight " + moveDirectionRight.y);
                 
-                weightsBumpRight = PhysicalFootprintWeights.UpdateWeightsUsingSpeed(weightsBumpRight,
-                    heightMapRightBool,
-                    gridSize, moveDirectionRight, neighbourCellsRight);
+                weightsBumpRight = PhysicalFootprintWeights.UpdateWeightsUsingFloor(weightsBumpRight, heightMapRightBool,
+                    gridSize, speed, neighbourCellsRight);
                 
             }
         }
@@ -647,7 +649,7 @@ public class PhysicalFootprint : TerrainBrushPhysicalFootprint
         double heightCellDisplacementYoung = right ? heightCellDisplacementYoungRight : heightCellDisplacementYoungLeft;
         float displacement = right ? displacementRight : displacementLeft;
         double bumpHeightDeformation = right ? bumpHeightDeformationRight : bumpHeightDeformationLeft;
-        Debug.Log("Height total deformation " + bumpHeightDeformation);
+        // Debug.Log("Height total deformation " + bumpHeightDeformation);
         // 1. Apply frame-per-frame deformation ("displacement")
         for (int zi = -gridSize; zi <= gridSize; zi++)
         {

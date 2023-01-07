@@ -38,7 +38,7 @@ RenderSettings:
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 705507994}
-  m_IndirectSpecularColor: {r: 0.4514044, g: 0.500897, b: 0.57231504, a: 1}
+  m_IndirectSpecularColor: {r: 0.4514047, g: 0.5008976, b: 0.57231545, a: 1}
   m_UseRadianceAmbientProbe: 0
 --- !u!157 &3
 LightmapSettings:
@@ -5650,6 +5650,41 @@ MonoBehaviour:
   deformationChoice: 0
   timePassed: 0
   contactTime: 0.1
+  deformationShape:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0.007941298
+      value: 1.0466326
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 136
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    - serializedVersion: 3
+      time: 1.5757251
+      value: 0.69473046
+      inSlope: Infinity
+      outSlope: Infinity
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0.33333334
+    - serializedVersion: 3
+      time: 2.6454048
+      value: -0.4918912
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  lenDeformation: 2
+  deformationVolumeMultiplicater: 55
   youngModulusSnow: 250000
   timeSnow: 0.2
   bumpSnow: 0

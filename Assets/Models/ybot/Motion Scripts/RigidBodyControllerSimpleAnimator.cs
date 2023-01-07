@@ -213,6 +213,7 @@ public class RigidBodyControllerSimpleAnimator : MonoBehaviour
             _anim.applyRootMotion = true;
             moveDirection = Vector3.zero;
             CheckIfShouldSlideOnSlopes();
+            transform.position += moveDirection * Time.deltaTime;
         }
 
         #endregion
@@ -343,8 +344,8 @@ public class RigidBodyControllerSimpleAnimator : MonoBehaviour
     {
         // Check if the character should slide on the floor due to the friction force
         _frictionModel.maxDegreeAdherence = tryAngle;
-        Vector3 normalRight = _frictionModel.GetFloorNormalFromFeet(true, Ground);
-        Vector3 normalLeft = _frictionModel.GetFloorNormalFromFeet(false, Ground);
+        Vector3 normalRight = FrictionModel.GetFloorNormalFromFeet(true, Ground);
+        Vector3 normalLeft = FrictionModel.GetFloorNormalFromFeet(false, Ground);
         Vector3 resNormal = (normalLeft + normalRight);
         if (normalLeft != Vector3.zero && normalRight != Vector3.zero)
         {

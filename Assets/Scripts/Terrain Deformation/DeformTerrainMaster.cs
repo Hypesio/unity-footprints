@@ -54,6 +54,12 @@ public class DeformTerrainMaster : MonoBehaviour
     [Tooltip("Small delay, sometimes needed, to give the system enough time to perform the deformation.")]
     private float offset = 0.2f; // 0.5f
 
+    public AnimationCurve deformationShape;
+    [Tooltip("Len of deformation in heightmap pixels")]
+    public int lenDeformation;
+
+    public float deformationVolumeMultiplicater = 1.0f;
+
     [Header("Terrain Prefabs - Settings - (SET UP)")]
     [Space(10)]
     public double youngModulusSnow = 200000;
@@ -850,6 +856,13 @@ public class DeformTerrainMaster : MonoBehaviour
         z = (z + heightmap_height) % heightmap_height;
         return heightmap_data_constant[z, x] * terrain_data.heightmapScale.y;
     }
+    
+    // Tell is the cell was previously compressed 
+    public bool IsCompressed(int x, int z)
+    {
+        return Get(x, z) < GetConstant(x, z);
+    }
+    
     public float GetConstant(float x, float z)
     {
         return GetConstant((int)x, (int)z);

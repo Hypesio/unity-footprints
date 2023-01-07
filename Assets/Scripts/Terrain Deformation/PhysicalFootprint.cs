@@ -470,33 +470,33 @@ public class PhysicalFootprint : TerrainBrushPhysicalFootprint
         
         if (applyModulatedBumps)
         {
-            Vector3 speed = DeformTerrainMaster.Instance.chestSpeed;
+            //Vector3 speed = DeformTerrainMaster.Instance.chestSpeed;
             //Vector3 speed = (DeformTerrainMaster.Instance.feetSpeedLeft + DeformTerrainMaster.Instance.feetSpeedRight) / 2;
             LayerMask ground = LayerMask.GetMask("Ground");
             if (IsLeftFootGrounded)
             {
-                // Vector3 speed = DeformTerrainMaster.Instance.feetSpeedLeft;
+                Vector3 speed = DeformTerrainMaster.Instance.feetSpeedLeft;
                 //Debug.Log("[Deform] Left feet speed " + speed);
                 
                 Vector3 normalLeft = FrictionModel.GetFloorNormalFromFeet(false, ground);
                 Vector3 slopeLeft = Vector3.Normalize(Vector3.ProjectOnPlane(Vector3.down, normalLeft));
-                Debug.Log("[Deform] moveDirectionLeft " + DeformTerrainMaster.Instance.chestSpeed);
+                //Debug.Log("[Deform] moveDirectionLeft " + DeformTerrainMaster.Instance.chestSpeed);
                 
-                weightsBumpLeft = PhysicalFootprintWeights.UpdateWeightsUsingFloor(weightsBumpLeft, heightMapLeftBool,
+                weightsBumpLeft = PhysicalFootprintWeights.UpdateWeightsUsingSpeed(weightsBumpLeft, heightMapLeftBool,
                     gridSize, speed, neighbourCellsLeft);
                 
             }
 
             if (IsRightFootGrounded)
             {
-                // Vector3 speed = DeformTerrainMaster.Instance.feetSpeedRight;
+                Vector3 speed = DeformTerrainMaster.Instance.feetSpeedRight;
                 //Debug.Log("[Deform] right feet speed " + speed)
                 
                 Vector3 normalRight = FrictionModel.GetFloorNormalFromFeet(true, ground);
                 Vector3 slopeRight = Vector3.Normalize(Vector3.ProjectOnPlane(Vector3.down, normalRight));
                 // Debug.Log("[Deform] moveDirectionRight " + moveDirectionRight.y);
                 
-                weightsBumpRight = PhysicalFootprintWeights.UpdateWeightsUsingFloor(weightsBumpRight, heightMapRightBool,
+                weightsBumpRight = PhysicalFootprintWeights.UpdateWeightsUsingSpeed(weightsBumpRight, heightMapRightBool,
                     gridSize, speed, neighbourCellsRight);
                 
             }

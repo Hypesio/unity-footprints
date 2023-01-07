@@ -127,7 +127,7 @@ public static class PhysicalFootprintWeights
         Vector3 speed, int nbNeighboor)
     {
         float[] valuesDeformation = ComputeValuesDeformation();
-        
+
         // TODO find the right value
         float speedForce = Mathf.Clamp(speed.magnitude / 2.5f, 0, 1); 
         Debug.Log(speedForce);

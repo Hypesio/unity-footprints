@@ -266,8 +266,10 @@ public class DeformTerrainMaster : MonoBehaviour
         oldIsJumping = _anim.GetBool("isJumping"); // NEW
     }
 
-    void Update()
+    void FixedUpdate()
     {
+        // 0. Calculate Velocity for the feet
+        CalculateFeetVelocity();
         // 1. Define source of deformation where we are
         DefineSourceDeformation();
 
@@ -289,12 +291,7 @@ public class DeformTerrainMaster : MonoBehaviour
         // 6. Apply procedural brush to deform the terrain based on the force model
         ApplyDeformation();
     }
-
-    public void FixedUpdate()
-    {
-        // 1. Calculate Velocity for the feet
-        CalculateFeetVelocity();
-    }
+    
 
     #endregion
 
@@ -307,7 +304,7 @@ public class DeformTerrainMaster : MonoBehaviour
         {
             // Brush is only called if we are within the contactTime
             // Due to the small values, the provisional solution requires to add an offset to give the system enough time to create the footprint
-            timePassed += Time.deltaTime;
+            timePassed += Time.fixedDeltaTime;
             if (timePassed <= contactTime + offset)
             {
                 // Brush that takes limbs positions and creates physically-based footprints

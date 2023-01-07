@@ -356,9 +356,9 @@ public class PhysicalFootprint : TerrainBrushPhysicalFootprint
         areaTotal = areaTotalLeft + areaTotalRight;
 
         #endregion
-
+        
         #region Detecting Contour
-
+        /* No longer needed with spline deformation */
         if (IsRightFootGrounded)
         {
             // 1. We don't need to check the whole grid - just in the 5x5 inner grid is enough
@@ -481,7 +481,7 @@ public class PhysicalFootprint : TerrainBrushPhysicalFootprint
                 Vector3 normalLeft = FrictionModel.GetFloorNormalFromFeet(false, ground);
                 Vector3 slopeLeft = Vector3.Normalize(Vector3.ProjectOnPlane(Vector3.down, normalLeft));
                 //Debug.Log("[Deform] moveDirectionLeft " + DeformTerrainMaster.Instance.chestSpeed);
-                
+                //neighbourCellsLeft = 1;
                 weightsBumpLeft = PhysicalFootprintWeights.UpdateWeightsUsingSpeed(weightsBumpLeft, heightMapLeftBool,
                     gridSize, speed, neighbourCellsLeft);
                 
@@ -495,7 +495,7 @@ public class PhysicalFootprint : TerrainBrushPhysicalFootprint
                 Vector3 normalRight = FrictionModel.GetFloorNormalFromFeet(true, ground);
                 Vector3 slopeRight = Vector3.Normalize(Vector3.ProjectOnPlane(Vector3.down, normalRight));
                 // Debug.Log("[Deform] moveDirectionRight " + moveDirectionRight.y);
-                
+                //neighbourCellsRight = 1;
                 weightsBumpRight = PhysicalFootprintWeights.UpdateWeightsUsingSpeed(weightsBumpRight, heightMapRightBool,
                     gridSize, speed, neighbourCellsRight);
                 
@@ -679,7 +679,7 @@ public class PhysicalFootprint : TerrainBrushPhysicalFootprint
                     }
                 }
                 // If the cell if a contour and bump should be apply
-                else if (!footCollider.Raycast(upRayFoot, out footHit, raycastDistance) && (heightMapBool[zi + gridSize, xi + gridSize] == 1) && applyBumps)
+                else if (!footCollider.Raycast(upRayFoot, out footHit, raycastDistance) && weightsBump[zi + gridSize, xi + gridSize] > 0 && applyBumps)
                 {
                     if(terrain.Get(rayGrid.x, rayGrid.z) <= terrain.GetConstant(rayGrid.x, rayGrid.z) + bumpHeightDeformation * (weightsBump[zi + gridSize, xi + gridSize]))
                     {

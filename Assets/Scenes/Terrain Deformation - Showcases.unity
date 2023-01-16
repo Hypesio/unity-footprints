@@ -2198,9 +2198,9 @@ MonoBehaviour:
   bumpSnow: 0
   poissonRatioSnow: 0.05
   filterIterationsSnow: 2
-  quantitySnow: 300
+  quantitySnow: 10
   sizeSnow: 0.5
-  densitySnow: 10
+  densitySnow: 1
   projectionAngleSnow: 15
   snowMaterials:
   - {fileID: 2100000, guid: 437da3ccb76eeec40843924eee5d1add, type: 2}
@@ -2212,9 +2212,9 @@ MonoBehaviour:
   bumpSand: 1
   poissonRatioSand: 0.45
   filterIterationsSand: 15
-  quantityDrySand: 300
+  quantityDrySand: 30
   sizeDrySand: 0.3
-  densityDrySand: 0.5
+  densityDrySand: 1
   projectionAngleDrySand: 30
   drySandMaterials:
   - {fileID: 2100000, guid: 8939f5affdb3439458497ac53865ad3e, type: 2}
@@ -2223,7 +2223,7 @@ MonoBehaviour:
   bumpMud: 1
   poissonRatioMud: 0.35
   filterIterationsMud: 5
-  quantityMud: 3
+  quantityMud: 10
   sizeMud: 0.2
   densityMud: 1
   projectionAngleMud: 45

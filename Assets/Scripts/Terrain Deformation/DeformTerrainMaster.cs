@@ -60,9 +60,10 @@ public class DeformTerrainMaster : MonoBehaviour
     public bool bumpSnow = false;
     public float poissonRatioSnow = 0.1f;
     public int filterIterationsSnow = 0;
+    [SerializeField]
     public int quantitySnow = 10;
     public float sizeSnow = 0.2f;
-    public float densitySnow = 10;
+    public float densitySnow = 1;
     public float projectionAngleSnow = 15;
     public List<Material> snowMaterials = new List<Material>();
     [Space(10)]
@@ -71,9 +72,9 @@ public class DeformTerrainMaster : MonoBehaviour
     public bool bumpSand = false;
     public float poissonRatioSand = 0.2f;
     public int filterIterationsSand = 5;
-    public int quantityDrySand = 40;
+    public float quantityDrySand = 40;
     public float sizeDrySand = 0.02f;
-    public float densityDrySand = 0.5f;
+    public float densityDrySand = 1f;
     public float projectionAngleDrySand = 30;
     public List<Material> drySandMaterials = new List<Material>();
     [Space(10)]
@@ -320,6 +321,7 @@ public class DeformTerrainMaster : MonoBehaviour
     private void InitParticleSpecs(ParticleSystem.MainModule mainPS, ParticleSystem.ShapeModule shapePS, ParticleSystem currentPS, string currentTerrain, float currentFeetSpeed)
     {
         currentPS.emissionRate = getEmissionRate(currentFeetSpeed, currentTerrain);
+        //print(currentPS.emissionRate);
         mainPS.startSize = getStartSize(currentTerrain);
         shapePS.angle = getShapeAngle(currentTerrain);
         SetFeetParticleMaterial(currentTerrain);
@@ -428,7 +430,9 @@ public class DeformTerrainMaster : MonoBehaviour
 
     private float getEmissionRate(float speed, string terrain)
     {
-        float emissionRate = 100 * speed;
+        float threshold = 0.6f;
+        float emissionRate = 10 * speed;
+        
         switch (terrain)
         {
             case "Main Terrain - Snow":
@@ -448,6 +452,13 @@ public class DeformTerrainMaster : MonoBehaviour
                 emissionRate /= densitySoil;
                 break;
         }
+        
+
+        if (speed > threshold)
+            emissionRate *= 3;
+
+        print(emissionRate);
+
         return emissionRate;
     }
 

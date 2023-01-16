@@ -54,9 +54,13 @@ public class DeformTerrainMaster : MonoBehaviour
     [Tooltip("Small delay, sometimes needed, to give the system enough time to perform the deformation.")]
     private float offset = 0.2f; // 0.5f
 
-    public AnimationCurve deformationShape;
+    /*** Added ***/
+    public AnimationCurve behindDeformationShape;
     [Tooltip("Len of deformation in heightmap pixels")]
-    public int lenDeformation;
+    public int behindLenDeformation = 10;
+
+    public AnimationCurve borderDeformationShape; 
+    public int borderLenDeformation = 10;
 
     public float deformationVolumeMultiplicater = 1.0f;
 

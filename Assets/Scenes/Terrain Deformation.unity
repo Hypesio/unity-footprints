@@ -5650,12 +5650,37 @@ MonoBehaviour:
   deformationChoice: 0
   timePassed: 0
   contactTime: 0.1
-  deformationShape:
+  behindDeformationShape:
     serializedVersion: 2
     m_Curve:
     - serializedVersion: 3
-      time: 0.007941298
-      value: 1.0466326
+      time: -0.015731812
+      value: 0
+      inSlope: 0.4843916
+      outSlope: 0.4843916
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0.18705541
+    - serializedVersion: 3
+      time: 0.6089783
+      value: 0.009433746
+      inSlope: -6.090102
+      outSlope: -6.090102
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.03688387
+      outWeight: 0
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  behindLenDeformation: 10
+  borderDeformationShape:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0.08988764
+      value: 0.5283019
       inSlope: 0
       outSlope: 0
       tangentMode: 136
@@ -5663,28 +5688,28 @@ MonoBehaviour:
       inWeight: 0.33333334
       outWeight: 0.33333334
     - serializedVersion: 3
-      time: 1.0592281
-      value: 0.15043539
-      inSlope: -0.4673093
-      outSlope: -0.4673093
-      tangentMode: 0
-      weightedMode: 0
-      inWeight: 0.2108824
-      outWeight: 0.33333334
-    - serializedVersion: 3
-      time: 2.9860725
-      value: -0.4955228
+      time: 0.35505807
+      value: 0.64858866
       inSlope: 0
       outSlope: 0
-      tangentMode: 0
+      tangentMode: 136
       weightedMode: 0
-      inWeight: 0
-      outWeight: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    - serializedVersion: 3
+      time: 0.5685393
+      value: 0.5330189
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 136
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
-  lenDeformation: 20
-  deformationVolumeMultiplicater: 0.0002
+  borderLenDeformation: 0
+  deformationVolumeMultiplicater: 1
   youngModulusSnow: 250000
   timeSnow: 0.2
   bumpSnow: 0

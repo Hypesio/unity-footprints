@@ -358,7 +358,7 @@ public class PhysicalFootprint : TerrainBrushPhysicalFootprint
         #endregion
         
         #region Detecting Contour
-        /* No longer needed with spline deformation */
+
         if (IsRightFootGrounded)
         {
             // 1. We don't need to check the whole grid - just in the 5x5 inner grid is enough

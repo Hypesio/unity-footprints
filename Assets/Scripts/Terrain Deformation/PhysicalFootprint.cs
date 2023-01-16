@@ -466,42 +466,59 @@ public class PhysicalFootprint : TerrainBrushPhysicalFootprint
         
         // === Modulated Bump === //
         float[,] weightsBumpLeft = PhysicalFootprintWeights.SetupWeights(gridSize, offsetBumpGrid, heightMapLeftBool);
-        float[,] weightsBumpRight = PhysicalFootprintWeights.SetupWeights(gridSize,  offsetBumpGrid, heightMapRightBool);
+        float[,] weightsBumpRight = PhysicalFootprintWeights.SetupWeights(gridSize, offsetBumpGrid, heightMapRightBool);
         
         if (applyModulatedBumps)
         {
-            //Vector3 speed = DeformTerrainMaster.Instance.chestSpeed;
-            //Vector3 speed = (DeformTerrainMaster.Instance.feetSpeedLeft + DeformTerrainMaster.Instance.feetSpeedRight) / 2;
+            // Vector3 speed = DeformTerrainMaster.Instance.chestSpeed;
+            // Debug.Log("chestSpeed: " + speed);
+            // if (speed.y > 0)
+            //    speed = -speed;
+            // Vector3 speed = (DeformTerrainMaster.Instance.feetSpeedLeft + DeformTerrainMaster.Instance.feetSpeedRight)/2;
             LayerMask ground = LayerMask.GetMask("Ground");
+            Vector3 normalLeft = FrictionModel.GetFloorNormalFromFeet(false, ground);
+            Vector3 normalRight = FrictionModel.GetFloorNormalFromFeet(true, ground);
+            Vector3 normal = normalLeft + normalRight;
+            Vector3 slope = Vector3.Normalize(Vector3.ProjectOnPlane(Vector3.down, normal));
+            float slopeAngle = Math.Abs(slope.y) * 3;
+            // if slopeAngle is greater than 1 then we set it to 1
+            if (slopeAngle > 1f)
+                slopeAngle = 1f;
             if (IsLeftFootGrounded)
             {
-                Vector3 speed = DeformTerrainMaster.Instance.feetSpeedLeft;
+                Vector3 speed = Vector3.Normalize(DeformTerrainMaster.Instance.feetSpeedLeft);
                 //Debug.Log("[Deform] Left feet speed " + speed);
                 
-                Vector3 normalLeft = FrictionModel.GetFloorNormalFromFeet(false, ground);
-                Vector3 slopeLeft = Vector3.Normalize(Vector3.ProjectOnPlane(Vector3.down, normalLeft));
+                // Vector3 normalLeft = FrictionModel.GetFloorNormalFromFeet(false, ground);
+                // Vector3 slopeLeft = Vector3.Normalize(Vector3.ProjectOnPlane(Vector3.down, normal));
                 //Debug.Log("[Deform] moveDirectionLeft " + DeformTerrainMaster.Instance.chestSpeed);
                 //neighbourCellsLeft = 1;
+                Vector3 BumpDirectionLeft = (1 - slopeAngle) * speed + slopeAngle * slope;
                 weightsBumpLeft = PhysicalFootprintWeights.UpdateWeightsUsingSpeed(weightsBumpLeft, heightMapLeftBool,
-                    gridSize, speed, neighbourCellsLeft);
+                    gridSize, BumpDirectionLeft, neighbourCellsLeft);
+                
+                Debug.DrawLine(DeformTerrainMaster.Instance.newIKLeftPosition, DeformTerrainMaster.Instance.newIKLeftPosition + slope, Color.red);
                 
             }
 
             if (IsRightFootGrounded)
             {
-                Vector3 speed = DeformTerrainMaster.Instance.feetSpeedRight;
+                Vector3 speed = Vector3.Normalize(DeformTerrainMaster.Instance.feetSpeedRight);
                 //Debug.Log("[Deform] right feet speed " + speed)
                 
-                Vector3 normalRight = FrictionModel.GetFloorNormalFromFeet(true, ground);
-                Vector3 slopeRight = Vector3.Normalize(Vector3.ProjectOnPlane(Vector3.down, normalRight));
+                // Vector3 normalRight = FrictionModel.GetFloorNormalFromFeet(true, ground);
+                // Vector3 slopeRight = Vector3.Normalize(Vector3.ProjectOnPlane(Vector3.down, normalRight));
                 // Debug.Log("[Deform] moveDirectionRight " + moveDirectionRight.y);
                 //neighbourCellsRight = 1;
+                Vector3 BumpDirectionRight = (1 - slopeAngle) * speed + slopeAngle * slope;
                 weightsBumpRight = PhysicalFootprintWeights.UpdateWeightsUsingSpeed(weightsBumpRight, heightMapRightBool,
-                    gridSize, speed, neighbourCellsRight);
+                    gridSize, BumpDirectionRight, neighbourCellsRight);
+                
+                Debug.DrawLine(DeformTerrainMaster.Instance.newIKRightPosition, DeformTerrainMaster.Instance.newIKRightPosition + slope, Color.red);
                 
             }
         }
-        
+
         #region Neighbour Area Calculation
 
         // 3. Calculate the neightbour area for each foot

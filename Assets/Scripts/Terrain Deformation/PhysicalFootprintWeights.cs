@@ -54,8 +54,8 @@ public static class PhysicalFootprintWeights
             xyTested = yDirection ? y : x;
         }
 
-        gridWays[arrowIndex,0] = yDirection ? startTested + speed : y; 
-        gridWays[arrowIndex,1] = yDirection ? x : startTested + speed; 
+        gridWays[arrowIndex,0] = yDirection ? startTested + speed : y;
+        gridWays[arrowIndex,1] = yDirection ? x : startTested + speed;
         
         return xyTested < minGrid || xyTested >= maxGrid;
     }
@@ -129,8 +129,8 @@ public static class PhysicalFootprintWeights
         float[] valuesDeformation = ComputeValuesDeformation();
 
         // TODO find the right value
-        float speedForce = Mathf.Clamp(speed.magnitude / 2.5f, 0, 1); 
-        Debug.Log(speedForce);
+        // float speedForce = Mathf.Clamp(speed.magnitude / 2.5f, 0, 1); 
+        float speedForce = speed.y;
 
         if (Vector3.Magnitude(speed) < 0.1)
         {
@@ -214,144 +214,19 @@ public static class PhysicalFootprintWeights
                             ref gridWays, ref gridWaysPassFeet, arrowIndex, xSpeed, false, speedForce, valuesDeformation);
                     }
 
-                    touchEnd = gridWaysStopped[arrowIndex] ? touchEnd + 1 : touchEnd;
-                }
-                else
-                {
-                    // Move in x direction than in y
-                    gridWaysStopped[arrowIndex] = moveArrow(heightMapBool, ref weightsBump, minGrid, maxGrid,
-                        ref gridWays, ref gridWaysPassFeet, arrowIndex, xSpeed, false, speedForce, valuesDeformation);
-                    if (!gridWaysStopped[arrowIndex])
-                        gridWaysStopped[arrowIndex] = moveArrow(heightMapBool, ref weightsBump, minGrid, maxGrid,
-                            ref gridWays, ref gridWaysPassFeet, arrowIndex, ySpeed, true, speedForce, valuesDeformation);
-                    touchEnd = gridWaysStopped[arrowIndex] ? touchEnd + 1 : touchEnd;
-                }
-            }
-
-            iter++;
-        }
-        
-        if (iter >= max_iter)
-            Debug.LogWarning("[UpdateWeights] REACH MAX ITERATION ON GRID");
-        
-        PrintGrid(weightsBump, minGrid, maxGrid);
-        Debug.Log("After treatment");
-        weightsBump = PostTreatmentWeights(weightsBump, minGrid, maxGrid, nbNeighboor);
-        PrintGrid(weightsBump, minGrid, maxGrid);
-        return weightsBump;
-    }
-    
-   /*     public static float[,] UpdateWeightsUsingFloor(float[,] weightsBump, int[,] heightMapBool, int gridSize,
-        Vector3 speed, int nbNeighboor = 1)
-    {
-        int minGrid = 0;
-        int maxGrid = 2 * gridSize + 1;
-        return UpdateWeightsUsingFloor(weightsBump, heightMapBool, minGrid, maxGrid, speed, nbNeighboor);
-    }
-    
-
-    public static float[,] UpdateWeightsUsingFloor(float[,] weightsBump, int[,] heightMapBool, int minGrid, int maxGrid,
-        Vector3 speed, int nbNeighboor)
-    {
-        // TODO find the right value
-        float speedForce = speed.y;
-        //Debug.Log(speedForce);
-
-        if (Vector3.Magnitude(speed) < 0.1)
-        {
-            // Speed is too much low to affect bump
-            return weightsBump;
-        }
-        
-        int xSpeed;
-        int ySpeed;
-        //PrintGrid(heightMapBool, minGrid, maxGrid);
-        
-        int sizeGrid = maxGrid - minGrid;
-   
-        // Set the speed of the "arrows" in the grid
-        if (Mathf.Abs(speed.x) > Mathf.Abs(speed.z))
-        {
-            xSpeed = Mathf.RoundToInt(speed.x / speed.z);
-            if (speed.x < 0 && xSpeed > 0 || speed.x > 0 && xSpeed < 0)
-                xSpeed = -xSpeed;
-            ySpeed = 1; 
-            if (speed.z < 0)
-                ySpeed = -1; 
-        }
-        else
-        {
-            xSpeed = 1;
-            if (speed.x < 0)
-                xSpeed = -1;
-            ySpeed = Mathf.RoundToInt(speed.z / speed.x);
-            if (speed.z < 0 && ySpeed > 0 || speed.z > 0 && ySpeed < 0)
-                ySpeed = -ySpeed;
-        }
-        
-        //Debug.Log("Speed for grid x/z: " + xSpeed + "/" + ySpeed);
-        
-        // Arrows that will pass on the grid
-        int[,] gridWays = new int[sizeGrid * 2, 2];
-        bool[] gridWaysStopped = new bool[sizeGrid * 2];
-        bool[] gridWaysPassFeet = new bool[sizeGrid * 2];
-        
-        // Set start position. Will be on two sides of the grid
-        for (int i = 0; i < sizeGrid; i++)
-        {
-            gridWaysStopped[i] = false;
-            gridWaysPassFeet[i] = false;
-            // Start at the beginning or at the end of a top / bottom side
-            gridWays[i, 0] = ySpeed > 0 ? minGrid : maxGrid - 1;
-            gridWays[i, 1] = i;
-        }
-        for (int i = sizeGrid; i < sizeGrid * 2; i++)
-        {
-            gridWaysStopped[i] = false;
-            gridWaysPassFeet[i] = false;
-            // Start at the beginning or at the end of right / left side
-            gridWays[i, 0] = i - sizeGrid;
-            gridWays[i, 1] = xSpeed > 0 ? minGrid : maxGrid - 1;
-        }
-        
-        // Iterate on all the grid
-        int touchEnd = 0;
-        int max_iter = 50;
-        int iter = 0;
-        int contourCount = 0; 
-        while (touchEnd < sizeGrid * 2 && iter < max_iter)
-        {
-            // Iterate on all "arrows"
-            for (int arrowIndex = 0; arrowIndex < sizeGrid * 2 && touchEnd < sizeGrid * 2; arrowIndex++)
-            {
-                if (gridWaysStopped[arrowIndex])
-                    continue;
-                
-                // Start by moving in the strongest direction
-                if (ySpeed > xSpeed)
-                {
-                    // Move in y direction than in x
-                    gridWaysStopped[arrowIndex] = moveArrow(heightMapBool, ref weightsBump, minGrid, maxGrid,
-                        ref gridWays, ref gridWaysPassFeet, arrowIndex, ySpeed, true,speedForce);
-                    if (!gridWaysStopped[arrowIndex])
-                    {
-                        gridWaysStopped[arrowIndex] = moveArrow(heightMapBool, ref weightsBump, minGrid, maxGrid,
-                            ref gridWays, ref gridWaysPassFeet, arrowIndex, xSpeed, false, speedForce);
+                        touchEnd = gridWaysStopped[arrowIndex] ? touchEnd + 1 : touchEnd;
                     }
-
-                    touchEnd = gridWaysStopped[arrowIndex] ? touchEnd + 1 : touchEnd;
-                }
-                else
-                {
-                    // Move in x direction than in y
-                    gridWaysStopped[arrowIndex] = moveArrow(heightMapBool, ref weightsBump, minGrid, maxGrid,
-                        ref gridWays, ref gridWaysPassFeet, arrowIndex, xSpeed, false, speedForce);
-                    if (!gridWaysStopped[arrowIndex])
+                    else
+                    {
+                        // Move in x direction than in y
                         gridWaysStopped[arrowIndex] = moveArrow(heightMapBool, ref weightsBump, minGrid, maxGrid,
-                            ref gridWays, ref gridWaysPassFeet, arrowIndex, ySpeed, true, speedForce);
-                    touchEnd = gridWaysStopped[arrowIndex] ? touchEnd + 1 : touchEnd;
+                            ref gridWays, ref gridWaysPassFeet, arrowIndex, xSpeed, false, speedForce, valuesDeformation);
+                        if (!gridWaysStopped[arrowIndex])
+                            gridWaysStopped[arrowIndex] = moveArrow(heightMapBool, ref weightsBump, minGrid, maxGrid,
+                                ref gridWays, ref gridWaysPassFeet, arrowIndex, ySpeed, true, speedForce, valuesDeformation);
+                        touchEnd = gridWaysStopped[arrowIndex] ? touchEnd + 1 : touchEnd;
+                    }
                 }
-            }
 
             iter++;
         }
@@ -359,12 +234,12 @@ public static class PhysicalFootprintWeights
         if (iter >= max_iter)
             Debug.LogWarning("[UpdateWeights] REACH MAX ITERATION ON GRID");
         
-        //PrintGrid(weightsBump, minGrid, maxGrid);
-        //Debug.Log("After treatment");
+        // PrintGrid(weightsBump, minGrid, maxGrid);
+        // Debug.Log("After treatment");
         weightsBump = PostTreatmentWeights(weightsBump, minGrid, maxGrid, nbNeighboor);
-        //PrintGrid(weightsBump, minGrid, maxGrid);
+        // PrintGrid(weightsBump, minGrid, maxGrid);
         return weightsBump;
-    }*/
+    }
 
     // [Debug] Print the specified grid in the console
     private static void PrintGrid(float[,] grid, int start, int end)

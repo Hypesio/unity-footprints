@@ -72,7 +72,7 @@ public class DeformTerrainMaster : MonoBehaviour
     public bool bumpSand = false;
     public float poissonRatioSand = 0.2f;
     public int filterIterationsSand = 5;
-    public float quantityDrySand = 40;
+    public float quantityDrySand = 30;
     public float sizeDrySand = 0.02f;
     public float densityDrySand = 1f;
     public float projectionAngleDrySand = 30;

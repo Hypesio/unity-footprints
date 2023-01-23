@@ -664,7 +664,7 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 537267395}
-  m_LocalRotation: {x: 0.012662813, y: 0.9814725, z: -0.17797485, w: 0.06983124}
+  m_LocalRotation: {x: 0.0126628205, y: 0.9814725, z: -0.17797485, w: 0.069831274}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
@@ -2203,10 +2203,14 @@ MonoBehaviour:
   densitySnow: 1
   projectionAngleSnow: 15
   snowAtlas:
-  - {fileID: 8010998940711673635, guid: 98f83b4e8965fcc4aacf80bdfdd9f573, type: 3}
-  - {fileID: -3971976640145834540, guid: 98f83b4e8965fcc4aacf80bdfdd9f573, type: 3}
-  - {fileID: -7783634192116063460, guid: 98f83b4e8965fcc4aacf80bdfdd9f573, type: 3}
-  - {fileID: 1424398668918112296, guid: 98f83b4e8965fcc4aacf80bdfdd9f573, type: 3}
+  - {fileID: -3897643427845946696, guid: 365d29a4faac3c84ea4b34794b0e7451, type: 3}
+  - {fileID: -1175067774336635463, guid: 365d29a4faac3c84ea4b34794b0e7451, type: 3}
+  - {fileID: -6766585956106478976, guid: 365d29a4faac3c84ea4b34794b0e7451, type: 3}
+  - {fileID: -4859443273582965661, guid: 365d29a4faac3c84ea4b34794b0e7451, type: 3}
+  - {fileID: 1772114825881776148, guid: 365d29a4faac3c84ea4b34794b0e7451, type: 3}
+  - {fileID: -319892289476430913, guid: 365d29a4faac3c84ea4b34794b0e7451, type: 3}
+  - {fileID: 5060357319466345196, guid: 365d29a4faac3c84ea4b34794b0e7451, type: 3}
+  - {fileID: -2543433190663520713, guid: 365d29a4faac3c84ea4b34794b0e7451, type: 3}
   youngModulusDrySand: 500000
   timeDrySand: 0.3
   bumpSand: 1
@@ -2221,6 +2225,10 @@ MonoBehaviour:
   - {fileID: 21300000, guid: 9a8386888003dcc47b079b5e01cecdf0, type: 3}
   - {fileID: 21300000, guid: 9a8386888003dcc47b079b5e01cecdf0, type: 3}
   - {fileID: 21300000, guid: 9a8386888003dcc47b079b5e01cecdf0, type: 3}
+  - {fileID: 21300000, guid: 9a8386888003dcc47b079b5e01cecdf0, type: 3}
+  - {fileID: 21300000, guid: 9a8386888003dcc47b079b5e01cecdf0, type: 3}
+  - {fileID: 21300000, guid: 9a8386888003dcc47b079b5e01cecdf0, type: 3}
+  - {fileID: 21300000, guid: 9a8386888003dcc47b079b5e01cecdf0, type: 3}
   youngModulusMud: 350000
   timeMud: 0.5
   bumpMud: 1
@@ -2231,10 +2239,14 @@ MonoBehaviour:
   densityMud: 1
   projectionAngleMud: 45
   mudAtlas:
-  - {fileID: 553258245764664706, guid: ad7e35d30de49ad45a48f1ee4a95a4b3, type: 3}
-  - {fileID: -7743132113016416900, guid: ad7e35d30de49ad45a48f1ee4a95a4b3, type: 3}
-  - {fileID: -1894472793995199350, guid: ad7e35d30de49ad45a48f1ee4a95a4b3, type: 3}
-  - {fileID: 757489442183737249, guid: ad7e35d30de49ad45a48f1ee4a95a4b3, type: 3}
+  - {fileID: 1441868110115740697, guid: 733799c1c322bda438c06325116d4730, type: 3}
+  - {fileID: 1129502612023246125, guid: 733799c1c322bda438c06325116d4730, type: 3}
+  - {fileID: -3947858235090620421, guid: 733799c1c322bda438c06325116d4730, type: 3}
+  - {fileID: 5228352849049204941, guid: 733799c1c322bda438c06325116d4730, type: 3}
+  - {fileID: 3841805067560784343, guid: 733799c1c322bda438c06325116d4730, type: 3}
+  - {fileID: -7257283409751979645, guid: 733799c1c322bda438c06325116d4730, type: 3}
+  - {fileID: 2757963099734075834, guid: 733799c1c322bda438c06325116d4730, type: 3}
+  - {fileID: 3093296048173450226, guid: 733799c1c322bda438c06325116d4730, type: 3}
   youngModulusSoil: 350000
   timeSoil: 0.8
   bumpSoil: 0

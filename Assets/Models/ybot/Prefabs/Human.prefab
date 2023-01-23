@@ -3464,6 +3464,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: Left Particle System
       objectReference: {fileID: 0}
+    - target: {fileID: 7987743659622034054, guid: 4ee96fe61831f4e498ea4b7fe12b9914, type: 3}
+      propertyPath: UVModule.sprites.Array.size
+      value: 8
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 4ee96fe61831f4e498ea4b7fe12b9914, type: 3}
 --- !u!4 &7310073095147362145 stripped
@@ -3525,6 +3529,14 @@ PrefabInstance:
     - target: {fileID: 5933131939062381335, guid: 4ee96fe61831f4e498ea4b7fe12b9914, type: 3}
       propertyPath: m_Name
       value: Right Particle System
+      objectReference: {fileID: 0}
+    - target: {fileID: 7987743659622034054, guid: 4ee96fe61831f4e498ea4b7fe12b9914, type: 3}
+      propertyPath: UVModule.startFrame.scalar
+      value: 0.9999
+      objectReference: {fileID: 0}
+    - target: {fileID: 7987743659622034054, guid: 4ee96fe61831f4e498ea4b7fe12b9914, type: 3}
+      propertyPath: UVModule.sprites.Array.size
+      value: 8
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 4ee96fe61831f4e498ea4b7fe12b9914, type: 3}

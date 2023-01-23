@@ -66,7 +66,6 @@ public class DeformTerrainMaster : MonoBehaviour
     public float densitySnow = 1;
     public float projectionAngleSnow = 15;
     public List<Sprite> snowAtlas = new List<Sprite>();
-    public List<Material> snowMaterials = new List<Material>();
     [Space(10)]
     public double youngModulusDrySand = 600000;
     public float timeDrySand = 0.3f;
@@ -78,7 +77,6 @@ public class DeformTerrainMaster : MonoBehaviour
     public float densityDrySand = 1f;
     public float projectionAngleDrySand = 30;
     public List<Sprite> sandAtlas = new List<Sprite>();
-    public List<Material> drySandMaterials = new List<Material>();
     [Space(10)]
     public double youngModulusMud = 350000;
     public float timeMud = 0.8f;
@@ -90,7 +88,6 @@ public class DeformTerrainMaster : MonoBehaviour
     public float densityMud = 1;
     public float projectionAngleMud = 45;
     public List<Sprite> mudAtlas = new List<Sprite>();
-    public List<Material> mudMaterials = new List<Material>();
     [Space(10)]
     public double youngModulusSoil = 350000;
     public float timeSoil = 0.8f;
@@ -327,16 +324,14 @@ public class DeformTerrainMaster : MonoBehaviour
         currentPS.emissionRate = getEmissionRate(currentFeetSpeed, currentTerrain);
         mainPS.startSize = getStartSize(currentTerrain);
         shapePS.angle = getShapeAngle(currentTerrain);
-        //print(currentPS.emissionRate);
 
-        SetFeetParticleMaterial(currentTerrain);
         SetFeetParticleAtlas(currentTerrain, currentPS);
 
         // TODO: Fix character speed parameter?
         if (currentTerrain == "Dry Sand")
         {
             mainPS.startLifetime = UnityEngine.Random.Range(1.4f, currentFeetSpeed * 1.8f);
-            mainPS.startColor = new Color(1f, 1f, 1f, 0f); // otherwise the particles are black
+            mainPS.startColor = new Color(1f, 1f, 1f, 0.5f); // otherwise the particles are black
 
             var noise = currentPS.noise; // https://docs.unity3d.com/Manual/PartSysNoiseModule.html
             noise.enabled = true;
@@ -355,7 +350,7 @@ public class DeformTerrainMaster : MonoBehaviour
         else if (currentTerrain == "Mud")
         {
             mainPS.startLifetime = UnityEngine.Random.Range(0.7f, 1f);
-            mainPS.startColor = new Color(1f, 1f, 1f, 1f); // otherwise the particles are not rendered (???)
+            mainPS.startColor = new Color(1f, 1f, 1f, 0.8f); // otherwise the particles are not rendered (???)
 
             var noise = currentPS.noise;
             noise.enabled = false;
@@ -372,7 +367,7 @@ public class DeformTerrainMaster : MonoBehaviour
         else if (currentTerrain == "Main Terrain - Snow")
         {
             mainPS.startLifetime = UnityEngine.Random.Range(0.7f, 1f);
-            mainPS.startColor = new Color(1f, 1f, 1f, 1f);
+            mainPS.startColor = new Color(1f, 1f, 1f, 0.8f);
 
             var collision = currentPS.collision;
             collision.enabled = true;
@@ -410,33 +405,9 @@ public class DeformTerrainMaster : MonoBehaviour
         }
 
         for (int i = 0; i < atlas.Count; i++)
-            currentPS.textureSheetAnimation.SetSprite(i, atlas[i]);
-
-        module.cycleCount = 0;
-        module.startFrame = UnityEngine.Random.Range(0, atlas.Count);
-    }
-
-    private void SetFeetParticleMaterial(string material)
-    {
-        Material mat = mudMaterials[0];
-        switch(material)
         {
-            case "Mud":
-                mat = mudMaterials[UnityEngine.Random.Range(0, mudMaterials.Count)];
-                break;
-            case "Dry Sand":
-                mat = drySandMaterials[UnityEngine.Random.Range(0, drySandMaterials.Count)];
-                break;
-            case "Main Terrain - Snow":
-                mat = snowMaterials[UnityEngine.Random.Range(0, snowMaterials.Count)];
-                break;
-            case "Soil":
-                mat = mudMaterials[UnityEngine.Random.Range(0, mudMaterials.Count)];
-                break;
+            module.SetSprite(i, atlas[i]);
         }
-
-        rightFootPS.GetComponent<ParticleSystemRenderer>().material = mat;
-        leftFootPS.GetComponent<ParticleSystemRenderer>().material = mat;
     }
 
     private void ApplyFootParticles()
@@ -499,17 +470,26 @@ public class DeformTerrainMaster : MonoBehaviour
 
     private float getStartSize(string terrain)
     {
+        float interval = 0.07f;
+        float size = 1.0f;
+
         switch (terrain)
         {
             case "Main Terrain - Snow":
-                return UnityEngine.Random.Range(sizeSnow - 0.05f, sizeSnow + 0.05f);
+                size = sizeSnow;
+                interval = 0.07f;
+                break;
             case "Dry Sand":
-                return UnityEngine.Random.Range(sizeDrySand - 0.05f, sizeDrySand + 0.05f); ;
+                size = sizeDrySand;
+                interval = 0.07f;
+                break;
             case "Mud":
-                return UnityEngine.Random.Range(sizeMud - 0.05f, sizeMud + 0.05f); ;
-            default:
-                return sizeSoil;
+                size = sizeMud;
+                interval = 0.07f;
+                break;
         }
+
+        return UnityEngine.Random.Range(size - interval, size + interval); ;
     }
 
     private float getShapeAngle(string terrain)

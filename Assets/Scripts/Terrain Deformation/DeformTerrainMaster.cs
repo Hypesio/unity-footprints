@@ -61,8 +61,8 @@ public class DeformTerrainMaster : MonoBehaviour
 
     public AnimationCurve borderDeformationShape; 
     public int borderLenDeformation = 10;
-
     public float deformationVolumeMultiplicater = 1.0f;
+    public float maxSpeedDeformation = 10.0f;
 
     [Header("Terrain Prefabs - Settings - (SET UP)")]
     [Space(10)]

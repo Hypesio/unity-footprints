@@ -3000,7 +3000,7 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 537267395}
-  m_LocalRotation: {x: -0.0053132595, y: 0.9835172, z: -0.17834565, w: -0.029300867}
+  m_LocalRotation: {x: -0.005313254, y: 0.9835172, z: -0.17834567, w: -0.029300831}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
@@ -5663,6 +5663,33 @@ MonoBehaviour:
       inWeight: 0
       outWeight: 0.18705541
     - serializedVersion: 3
+      time: 0.08009855
+      value: 0.0023917044
+      inSlope: 0.017427996
+      outSlope: 0.017427996
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 1
+    - serializedVersion: 3
+      time: 0.109766126
+      value: 0.5824675
+      inSlope: 0.023376923
+      outSlope: 0.023376923
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 1
+      outWeight: 0
+    - serializedVersion: 3
+      time: 0.41758546
+      value: 0.48632026
+      inSlope: -0.707349
+      outSlope: -0.707349
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.40838778
+      outWeight: 0.22900748
+    - serializedVersion: 3
       time: 0.6089783
       value: 0.009433746
       inSlope: -6.090102
@@ -5674,7 +5701,7 @@ MonoBehaviour:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
-  behindLenDeformation: 10
+  behindLenDeformation: 7
   borderDeformationShape:
     serializedVersion: 2
     m_Curve:
@@ -5688,10 +5715,28 @@ MonoBehaviour:
       inWeight: 0.33333334
       outWeight: 0.33333334
     - serializedVersion: 3
-      time: 0.35505807
-      value: 0.64858866
+      time: 0.15118241
+      value: 0.52858746
+      inSlope: 0.013490098
+      outSlope: 0.013490098
+      tangentMode: 136
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    - serializedVersion: 3
+      time: 0.17456186
+      value: 0.64998865
       inSlope: 0
       outSlope: 0
+      tangentMode: 136
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    - serializedVersion: 3
+      time: 0.29700944
+      value: 0.6377626
+      inSlope: -0.124129385
+      outSlope: -0.124129385
       tangentMode: 136
       weightedMode: 0
       inWeight: 0.33333334
@@ -5708,8 +5753,9 @@ MonoBehaviour:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
-  borderLenDeformation: 0
+  borderLenDeformation: 4
   deformationVolumeMultiplicater: 1
+  maxSpeedDeformation: 1
   youngModulusSnow: 250000
   timeSnow: 0.2
   bumpSnow: 0

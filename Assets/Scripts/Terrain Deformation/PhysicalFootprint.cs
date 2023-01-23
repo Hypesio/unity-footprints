@@ -488,7 +488,7 @@ public class PhysicalFootprint : TerrainBrushPhysicalFootprint
             }
 
             if (IsRightFootGrounded)
-            {
+            { 
                 Vector3 speed = DeformTerrainMaster.Instance.feetSpeedRight;
                 //Debug.Log("[Deform] right feet speed " + speed)
                 

@@ -42,11 +42,9 @@ public static class PhysicalFootprintWeights
             // If we are after the feet in the speed direction
             else if (passFeet[arrowIndex] != -1 && passFeet[arrowIndex] < valuesDeformation.Length)
             {
-                grid[y, x] = valuesDeformation[passFeet[arrowIndex]++]; //Mathf.Min(1f + speedForce, 2f);
+                grid[y, x] += valuesDeformation[passFeet[arrowIndex]++]; //Mathf.Min(1f + speedForce, 2f);
             }
-            else 
-                grid[y, x] = 0;
-            
+
             if (yDirection)
                 y = speed > 0 ? y + 1 : y - 1;
             else
@@ -99,33 +97,30 @@ public static class PhysicalFootprintWeights
     }
 
     // Return an array of cell weights using the curve and length specified 
-    private static float[] ComputeValuesDeformation(AnimationCurve curve, int len)
+    private static float[] ComputeValuesDeformation(AnimationCurve curve, int len, float mutiplicator = 1)
     {
         float[] values = new float[len];
         float step = curve.keys[curve.length - 1].time / values.Length;
         for (int i = 0; i < values.Length; i++)
         {
-            values[i] = curve.Evaluate(step * i);
+            values[i] = curve.Evaluate(step * i) * mutiplicator;
         }
         return values;
     }
     
     // Will add weights around the feet depending on the curve specified in DeformTerrainMaster
-    private static void DeformationAroundFeet(int[,] heightBoolMap, ref float[,] grid, int minGrid, int maxGrid)
+    private static void DeformationAroundFeet(int[,] heightBoolMap, ref float[,] grid, int minGrid, int maxGrid, float importance)
     {
         float[] valuesDeformation = ComputeValuesDeformation(DeformTerrainMaster.Instance.borderDeformationShape,
-            DeformTerrainMaster.Instance.borderLenDeformation);
+            DeformTerrainMaster.Instance.borderLenDeformation, importance);
 
         int gridSize = maxGrid - minGrid;
         Vector2 feetCenter = new Vector2(gridSize / 2, gridSize / 2);
         // Iterate on the grid to search 
         for (int i = minGrid; i < maxGrid; i++)
         {
-            //Debug.Log("x step:" + i);
             for (int j = minGrid; j < maxGrid; j++)
             {
-                //feetCenter.x++;
-                //    Debug.Log("y step:" + j);
                 // If we are on a border of the feet put weight around the cell
                 if (heightBoolMap[i, j] == (int)PhysicalFootprint.CellState.Contour)
                 {
@@ -133,14 +128,18 @@ public static class PhysicalFootprintWeights
                     direction = GetVectorForGrid(direction);
                     int progress = 0;
                     Vector2 actualPos = new Vector2(i, j);
-                    while (progress < valuesDeformation.Length)
+                    while (progress < valuesDeformation.Length && actualPos.x > minGrid && actualPos.x < maxGrid &&
+                    actualPos.y > minGrid && actualPos.y < maxGrid)
                     {
-                        //Debug.Log("Progress " + progress + " len" + valuesDeformation.Length);
                         for (int x = 0; x < Mathf.Abs(direction.x) && progress < valuesDeformation.Length; x++)
                         {
-                            if (actualPos.x < 0 || actualPos.x > gridSize)
+                            if (actualPos.x < minGrid || actualPos.x >= maxGrid)
                                 break;
-                            
+                            if (actualPos.y < minGrid || actualPos.y >= maxGrid)
+                                break;
+                            //useless
+                            //grid[Mathf.RoundToInt(actualPos.x), 0] = 0;
+                            //grid[0, Mathf.RoundToInt(actualPos.y)] = 0;
                             grid[Mathf.RoundToInt(actualPos.x), Mathf.RoundToInt(actualPos.y)] =
                                 valuesDeformation[progress];
                             if (direction.x < 0)
@@ -149,11 +148,12 @@ public static class PhysicalFootprintWeights
                                 actualPos.x++;
                             progress++;
                         }
-                        //Debug.Log("Pass x");
 
                         for (int y = 0; y < Mathf.Abs(direction.y) && progress < valuesDeformation.Length; y++)
                         {
-                            if (actualPos.y < 0 || actualPos.y > gridSize)
+                            if (actualPos.x < minGrid || actualPos.x >= maxGrid)
+                                break;
+                            if (actualPos.y < minGrid || actualPos.y >= maxGrid)
                                 break;
                             
                             grid[Mathf.RoundToInt(actualPos.x), Mathf.RoundToInt(actualPos.y)] =
@@ -164,7 +164,7 @@ public static class PhysicalFootprintWeights
                                 actualPos.y++;
                             progress++;
                         }
-                        //Debug.Log("Pass y");
+                        
                     }
                 }
             }
@@ -211,22 +211,21 @@ public static class PhysicalFootprintWeights
     public static float[,] UpdateWeightsUsingSpeed(float[,] weightsBump, int[,] heightMapBool, int minGrid, int maxGrid,
         Vector3 speed, int nbNeighboor)
     {
-        float[] valuesDeformation = ComputeValuesDeformation(DeformTerrainMaster.Instance.behindDeformationShape,
-            DeformTerrainMaster.Instance.behindLenDeformation);
+        float speedImportance = Mathf.Clamp(Vector3.Magnitude(speed) / DeformTerrainMaster.Instance.maxSpeedDeformation, 0.0f, 1.0f);
+        Debug.Log("Speed importance " + speedImportance + "border importance " + (1.0f - speedImportance) + " speed " + speed);
 
-        // TODO find the right value
-        float speedForce = Mathf.Clamp(speed.magnitude / 2.5f, 0, 1);
-
-        DeformationAroundFeet(heightMapBool, ref weightsBump, minGrid, maxGrid);
-
-        if (Vector3.Magnitude(speed) < 0.1)
+        DeformationAroundFeet(heightMapBool, ref weightsBump, minGrid, maxGrid, 1.0f - speedImportance);
+        if (speedImportance < 0.01)
         {
             // Speed is too much low to affect bump
             return weightsBump;
         }
         
+        float[] valuesDeformation = ComputeValuesDeformation(DeformTerrainMaster.Instance.behindDeformationShape,
+            DeformTerrainMaster.Instance.behindLenDeformation, speedImportance);
+        
+        float speedForce = Mathf.Clamp(speed.magnitude / 2.5f, 0, 1);
         int sizeGrid = maxGrid - minGrid;
-   
         // Set the speed of the "arrows" in the grid
         Vector2 speedVector = GetVectorForGrid(new Vector2(speed.x, speed.z));
         int xSpeed = Mathf.RoundToInt(speedVector.x);

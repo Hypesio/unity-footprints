@@ -490,8 +490,9 @@ public class DeformTerrainMaster : MonoBehaviour
 
         if (speed > threshold)
             emissionRate *= 3;
-
-        print(emissionRate);
+        else if (UnityEngine.Random.value < .5)
+            emissionRate = 0;
+        //print(emissionRate);
 
         return emissionRate;
     }
@@ -501,11 +502,11 @@ public class DeformTerrainMaster : MonoBehaviour
         switch (terrain)
         {
             case "Main Terrain - Snow":
-                return sizeSnow;
+                return UnityEngine.Random.Range(sizeSnow - 0.05f, sizeSnow + 0.05f);
             case "Dry Sand":
-                return sizeDrySand;
+                return UnityEngine.Random.Range(sizeDrySand - 0.05f, sizeDrySand + 0.05f); ;
             case "Mud":
-                return sizeMud;
+                return UnityEngine.Random.Range(sizeMud - 0.05f, sizeMud + 0.05f); ;
             default:
                 return sizeSoil;
         }

@@ -65,6 +65,7 @@ public class DeformTerrainMaster : MonoBehaviour
     public float sizeSnow = 0.2f;
     public float densitySnow = 1;
     public float projectionAngleSnow = 15;
+    public List<Sprite> snowAtlas = new List<Sprite>();
     public List<Material> snowMaterials = new List<Material>();
     [Space(10)]
     public double youngModulusDrySand = 600000;
@@ -76,6 +77,7 @@ public class DeformTerrainMaster : MonoBehaviour
     public float sizeDrySand = 0.02f;
     public float densityDrySand = 1f;
     public float projectionAngleDrySand = 30;
+    public List<Sprite> sandAtlas = new List<Sprite>();
     public List<Material> drySandMaterials = new List<Material>();
     [Space(10)]
     public double youngModulusMud = 350000;
@@ -87,6 +89,7 @@ public class DeformTerrainMaster : MonoBehaviour
     public float sizeMud = 1.5f;
     public float densityMud = 1;
     public float projectionAngleMud = 45;
+    public List<Sprite> mudAtlas = new List<Sprite>();
     public List<Material> mudMaterials = new List<Material>();
     [Space(10)]
     public double youngModulusSoil = 350000;
@@ -97,6 +100,7 @@ public class DeformTerrainMaster : MonoBehaviour
     public int quantitySoil = 4;
     public float sizeSoil = 0.05f;
     public float densitySoil = 1;
+    public List<Sprite> soilAtlas = new List<Sprite>();
     public float projectionAngleSoil = 22;
 
     [Header("Bipedal - System Info")]
@@ -321,10 +325,12 @@ public class DeformTerrainMaster : MonoBehaviour
     private void InitParticleSpecs(ParticleSystem.MainModule mainPS, ParticleSystem.ShapeModule shapePS, ParticleSystem currentPS, string currentTerrain, float currentFeetSpeed)
     {
         currentPS.emissionRate = getEmissionRate(currentFeetSpeed, currentTerrain);
-        //print(currentPS.emissionRate);
         mainPS.startSize = getStartSize(currentTerrain);
         shapePS.angle = getShapeAngle(currentTerrain);
+        //print(currentPS.emissionRate);
+
         SetFeetParticleMaterial(currentTerrain);
+        SetFeetParticleAtlas(currentTerrain, currentPS);
 
         // TODO: Fix character speed parameter?
         if (currentTerrain == "Dry Sand")
@@ -380,6 +386,34 @@ public class DeformTerrainMaster : MonoBehaviour
             var noise = currentPS.noise;
             noise.enabled = false;
         }
+    }
+
+    void SetFeetParticleAtlas(string currentTerrain, ParticleSystem currentPS)
+    {
+        List<Sprite> atlas;
+        var module = currentPS.textureSheetAnimation;
+
+        switch (currentTerrain)
+        {
+            case "Main Terrain - Snow":
+                atlas = snowAtlas;
+                break;
+            case "Dry Sand":
+                atlas = sandAtlas;
+                break;
+            case "Mud":
+                atlas = mudAtlas;
+                break;
+            default:
+                atlas = soilAtlas;
+                break;
+        }
+
+        for (int i = 0; i < atlas.Count; i++)
+            currentPS.textureSheetAnimation.SetSprite(i, atlas[i]);
+
+        module.cycleCount = 0;
+        module.startFrame = UnityEngine.Random.Range(0, atlas.Count);
     }
 
     private void SetFeetParticleMaterial(string material)

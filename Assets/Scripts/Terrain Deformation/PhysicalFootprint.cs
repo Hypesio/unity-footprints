@@ -37,7 +37,7 @@ public class PhysicalFootprint : TerrainBrushPhysicalFootprint
 
     [Header("Compression Grid - (SET UP)")]
     [Space(20)]
-    [Range(0, 20)] public int gridSize = 15;
+    [Range(0, 60)] public int gridSize = 15;
     [Range(0f, 1f)] public float raycastDistance = 0.075f;
     [Range(0f, 1f)] public float offsetRay = 0.04f;
 
@@ -693,7 +693,7 @@ public class PhysicalFootprint : TerrainBrushPhysicalFootprint
         double heightCellDisplacementYoung = right ? heightCellDisplacementYoungRight : heightCellDisplacementYoungLeft;
         float displacement = right ? displacementRight : displacementLeft;
         double bumpHeightDeformation = right ? bumpHeightDeformationRight : bumpHeightDeformationLeft;
-        // Debug.Log("Height total deformation " + bumpHeightDeformation);
+
         // 1. Apply frame-per-frame deformation ("displacement")
         for (int zi = -gridSize; zi <= gridSize; zi++)
         {
@@ -819,19 +819,20 @@ public class PhysicalFootprint : TerrainBrushPhysicalFootprint
             for (int xi = -gridSize + marginAroundGrid; xi <= gridSize - marginAroundGrid; xi++)
             {
                 Vector3 rayGridLeft = new Vector3(x + xi, terrain.Get(x + xi, z + zi), z + zi);
-
+                float corners = 1.0f / 16.0f;
+                float borders = 2.0f / 16.0f; 
                 heightMapFiltered[zi + gridSize, xi + gridSize] =
-                    0 * heightMap[zi + gridSize - 1, xi + gridSize - 1]
-                    + 0 * heightMap[zi + gridSize - 1, xi + gridSize]
-                    + 5 * heightMap[zi + gridSize - 1, xi + gridSize + 1]
-                    + 0 * heightMap[zi + gridSize, xi + gridSize - 1]
-                    + 1 * heightMap[zi + gridSize, xi + gridSize]
-                    + 5 * heightMap[zi + gridSize, xi + gridSize + 1]
-                    + 0 * heightMap[zi + gridSize + 1, xi + gridSize - 1]
-                    + 0 * heightMap[zi + gridSize + 1, xi + gridSize]
-                    + 5 * heightMap[zi + gridSize + 1, xi + gridSize + 1];
+                    corners * heightMap[zi + gridSize - 1, xi + gridSize - 1]
+                    + borders * heightMap[zi + gridSize - 1, xi + gridSize]
+                    + corners * heightMap[zi + gridSize - 1, xi + gridSize + 1]
+                    + borders * heightMap[zi + gridSize, xi + gridSize - 1]
+                    + 4.0f / 16.0f * heightMap[zi + gridSize, xi + gridSize]
+                    + borders * heightMap[zi + gridSize, xi + gridSize + 1]
+                    + corners * heightMap[zi + gridSize + 1, xi + gridSize - 1]
+                    + borders * heightMap[zi + gridSize + 1, xi + gridSize]
+                    + corners * heightMap[zi + gridSize + 1, xi + gridSize + 1];
 
-                heightMapFiltered[zi + gridSize, xi + gridSize] *= 1.0f / 11.0f;
+                //heightMapFiltered[zi + gridSize, xi + gridSize] *= 1.0f / 16.0f;
             }
         }
 

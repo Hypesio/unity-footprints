@@ -256,7 +256,7 @@ public static class PhysicalFootprintWeights
         
         // Iterate on all the grid
         int touchEnd = 0;
-        int max_iter = 50;
+        int max_iter = 200;
         int iter = 0;
         int contourCount = 0; 
         while (touchEnd < sizeGrid * 2 && iter < max_iter)

@@ -104,8 +104,8 @@ public class DeformTerrainMaster : MonoBehaviour
     public Vector3 centerGridRightFootHeight;
     private Vector3 centerGridLeftFoot;
     private Vector3 centerGridRightFoot;
-    private Vector3 newIKLeftPosition;
-    private Vector3 newIKRightPosition;
+    public Vector3 newIKLeftPosition;
+    public Vector3 newIKRightPosition;
     private Vector3 oldIKLeftPosition;
     private Vector3 oldIKRightPosition;
     private Animator _anim;

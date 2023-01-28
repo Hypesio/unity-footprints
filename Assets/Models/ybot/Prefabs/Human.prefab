@@ -1,5 +1,52 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
+--- !u!1 &101314227539881414
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 6721860126428976217}
+  - component: {fileID: 8644198085289514105}
+  m_Layer: 0
+  m_Name: Chest
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &6721860126428976217
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 101314227539881414}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 958700623077066069}
+  m_RootOrder: 3
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!54 &8644198085289514105
+Rigidbody:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 101314227539881414}
+  serializedVersion: 2
+  m_Mass: 1
+  m_Drag: 0
+  m_AngularDrag: 0.05
+  m_UseGravity: 1
+  m_IsKinematic: 0
+  m_Interpolate: 0
+  m_Constraints: 0
+  m_CollisionDetection: 0
 --- !u!1 &331153741591160939
 GameObject:
   m_ObjectHideFlags: 0
@@ -114,6 +161,7 @@ MonoBehaviour:
   speedTransform: 1
   speedRigidBody: 1
   animationMultiplier: 0.66
+  runSpeed: 2
   _groundChecker: {fileID: 1038996501129797029}
   _isGrounded: 1
   GroundDistance: 0.2
@@ -133,6 +181,7 @@ MonoBehaviour:
   signRotation: 1
   leftFoot: {fileID: 2936776858232310539}
   rightFoot: {fileID: 11300954128954182}
+  tryAngle: 20
 --- !u!114 &5798769857515579636
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2140,6 +2189,7 @@ Transform:
   - {fileID: 3012730119281284558}
   - {fileID: 5923749688410949928}
   - {fileID: 7666740227700632743}
+  - {fileID: 6721860126428976217}
   m_Father: {fileID: 1798828881407178046}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}

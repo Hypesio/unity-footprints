@@ -27,6 +27,8 @@ public class DeformTerrainMaster : MonoBehaviour
 {
     #region Instance Fields
 
+    public static DeformTerrainMaster Instance; 
+
     [Header("Bipedal - (SET UP)")]
     [Tooltip("Your character GameObject")]
     public GameObject myBipedalCharacter;
@@ -39,6 +41,9 @@ public class DeformTerrainMaster : MonoBehaviour
     [Tooltip("RB attached to Right Foot for velocity estimation")]
     public Rigidbody rightFootRB;
 
+    [Tooltip("RB attached to chest for velocity estimation")]
+    public Rigidbody chestRB;
+
     [Header("Source of Deformation - (SET UP)")]
     public sourceDeformation deformationChoice;
 
@@ -48,6 +53,16 @@ public class DeformTerrainMaster : MonoBehaviour
     public float contactTime = 0.1f;
     [Tooltip("Small delay, sometimes needed, to give the system enough time to perform the deformation.")]
     private float offset = 0.2f; // 0.5f
+
+    /*** Added ***/
+    public AnimationCurve behindDeformationShape;
+    [Tooltip("Len of deformation in heightmap pixels")]
+    public int behindLenDeformation = 10;
+
+    public AnimationCurve borderDeformationShape; 
+    public int borderLenDeformation = 10;
+    public float deformationVolumeMultiplicater = 1.0f;
+    public float maxSpeedDeformation = 10.0f;
 
     [Header("Terrain Prefabs - Settings - (SET UP)")]
     [Space(10)]
@@ -89,8 +104,8 @@ public class DeformTerrainMaster : MonoBehaviour
     public Vector3 centerGridRightFootHeight;
     private Vector3 centerGridLeftFoot;
     private Vector3 centerGridRightFoot;
-    private Vector3 newIKLeftPosition;
-    private Vector3 newIKRightPosition;
+    public Vector3 newIKLeftPosition;
+    public Vector3 newIKRightPosition;
     private Vector3 oldIKLeftPosition;
     private Vector3 oldIKRightPosition;
     private Animator _anim;
@@ -114,6 +129,7 @@ public class DeformTerrainMaster : MonoBehaviour
     [Header("Bipedal - Physics - Feet Velocities Info")]
     public Vector3 feetSpeedLeft = Vector3.zero;
     public Vector3 feetSpeedRight = Vector3.zero;
+    public Vector3 chestSpeed = Vector3.zero;
 
     [Header("Bipedal - Physics - Impulse and Momentum Forces Info")]
     public Vector3 feetImpulseLeft = Vector3.zero;
@@ -214,6 +230,11 @@ public class DeformTerrainMaster : MonoBehaviour
 
     #region Unity Methods
 
+    private void Awake()
+    {
+        Instance = this;
+    }
+
     void Start()
     {
         // 1. Extract terrain information
@@ -249,8 +270,10 @@ public class DeformTerrainMaster : MonoBehaviour
         oldIsJumping = _anim.GetBool("isJumping"); // NEW
     }
 
-    void Update()
+    void FixedUpdate()
     {
+        // 0. Calculate Velocity for the feet
+        CalculateFeetVelocity();
         // 1. Define source of deformation where we are
         DefineSourceDeformation();
 
@@ -272,12 +295,7 @@ public class DeformTerrainMaster : MonoBehaviour
         // 6. Apply procedural brush to deform the terrain based on the force model
         ApplyDeformation();
     }
-
-    public void FixedUpdate()
-    {
-        // 1. Calculate Velocity for the feet
-        CalculateFeetVelocity();
-    }
+    
 
     #endregion
 
@@ -290,7 +308,7 @@ public class DeformTerrainMaster : MonoBehaviour
         {
             // Brush is only called if we are within the contactTime
             // Due to the small values, the provisional solution requires to add an offset to give the system enough time to create the footprint
-            timePassed += Time.deltaTime;
+            timePassed += Time.fixedDeltaTime;
             if (timePassed <= contactTime + offset)
             {
                 // Brush that takes limbs positions and creates physically-based footprints
@@ -328,6 +346,11 @@ public class DeformTerrainMaster : MonoBehaviour
             timePassed = 0f;
             oldIsJumping = isJumping;
             provCounter = 0;
+        }
+
+        if (_anim.GetCurrentAnimatorStateInfo(0).IsName("Dance") || _anim.GetCurrentAnimatorStateInfo(0).IsName("Slide"))
+        {
+            timePassed = 0f;
         }
     }
 
@@ -630,10 +653,11 @@ public class DeformTerrainMaster : MonoBehaviour
     private void UpdateTerrain()
     {
         // A. Every time we change to other terrainData, we update
-        if (terrain.name != myBipedalCharacter.GetComponent<RigidBodyControllerSimpleAnimator>().currentTerrain.name)
+        Terrain newTerrain = myBipedalCharacter.GetComponent<RigidBodyControllerSimpleAnimator>().currentTerrain;
+        if (newTerrain != null && terrain.name != newTerrain.name)
         {
             // Extract terrain information
-            terrain = myBipedalCharacter.GetComponent<RigidBodyControllerSimpleAnimator>().currentTerrain;
+            terrain = newTerrain;
             Debug.Log("[INFO] Updating to new terrain: " + terrain.name);
 
             terrain_collider = terrain.GetComponent<Collider>();
@@ -715,6 +739,7 @@ public class DeformTerrainMaster : MonoBehaviour
 
         feetSpeedLeft = leftFootRB.velocity;
         feetSpeedRight = rightFootRB.velocity;
+        chestSpeed = chestRB.velocity;
 
         if (drawNewVelocities)
         {
@@ -832,6 +857,13 @@ public class DeformTerrainMaster : MonoBehaviour
         z = (z + heightmap_height) % heightmap_height;
         return heightmap_data_constant[z, x] * terrain_data.heightmapScale.y;
     }
+    
+    // Tell is the cell was previously compressed 
+    public bool IsCompressed(int x, int z)
+    {
+        return Get(x, z) < GetConstant(x, z);
+    }
+    
     public float GetConstant(float x, float z)
     {
         return GetConstant((int)x, (int)z);

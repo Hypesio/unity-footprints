@@ -25,7 +25,7 @@ public class BrushEditorPhysicalFootprint : Editor
     #region Instance Methods
 
     public override void OnInspectorGUI()
-	{
+    {
         BrushPhysicalFootprint myBrush = (BrushPhysicalFootprint)target;
 
         // To start brush by default

@@ -59,7 +59,7 @@ public static class PhysicalFootprintWeights
     }
 
     // Pass on the grid after the main process is done. Will improve visual results
-    private static float[,] PostTreatmentWeights(float[,] weightsBump, int minGrid, int maxGrid, int nbNeighboor)
+    public static float[,] PostTreatmentWeights(float[,] weightsBump, int minGrid, int maxGrid, int nbNeighboor)
     {
         // Keep the right volume
         int nbDeformedCells = 0;
@@ -212,7 +212,6 @@ public static class PhysicalFootprintWeights
         Vector3 speed, int nbNeighboor)
     {
         float speedImportance = Mathf.Clamp(Vector3.Magnitude(speed) / DeformTerrainMaster.Instance.maxSpeedDeformation, 0.0f, 1.0f);
-        Debug.Log("Speed importance " + speedImportance + "border importance " + (1.0f - speedImportance) + " speed " + speed);
 
         DeformationAroundFeet(heightMapBool, ref weightsBump, minGrid, maxGrid, 1.0f - speedImportance);
         if (speedImportance < 0.01)

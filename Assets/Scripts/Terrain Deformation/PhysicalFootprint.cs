@@ -497,7 +497,7 @@ public class PhysicalFootprint : TerrainBrushPhysicalFootprint
                 weightsBumpSpeedLeft = PhysicalFootprintWeights.UpdateWeightsUsingSpeed(weightsBumpLeft, heightMapLeftBool,
                     gridSize, speedLeft, neighbourCellsLeft);
                 weightsBumpSlopeLeft = PhysicalFootprintWeights.UpdateWeightsUsingSpeed(weightsBumpRight, heightMapRightBool,
-                    gridSize, slopeLeft, neighbourCellsRight);
+                    gridSize, slopeLeft, neighbourCellsLeft);
                 
                 // Calculate the final bump weights by sum up the speed and slope weights
                 for (int zi = -gridSize + offsetBumpGrid; zi <= gridSize - offsetBumpGrid; zi++)
@@ -507,10 +507,12 @@ public class PhysicalFootprint : TerrainBrushPhysicalFootprint
                         weightsBumpLeft[zi + gridSize, xi + gridSize] = (1 - slopeAngleLeft) * weightsBumpSpeedLeft[zi + gridSize, xi + gridSize] + slopeAngleLeft * weightsBumpSlopeLeft[zi + gridSize, xi + gridSize];
                     }
                 }
+                // Adapt weights values to preserve volume deformation
+                weightsBumpLeft = PhysicalFootprintWeights.PostTreatmentWeights(weightsBumpLeft, 0, 2 * gridSize + 1, neighbourCellsLeft);
                 
                 // Draw vectors
-                Debug.DrawLine(DeformTerrainMaster.Instance.newIKLeftPosition, DeformTerrainMaster.Instance.newIKLeftPosition + slopeAngleLeft * slopeLeft, Color.red);
-                Debug.DrawLine(DeformTerrainMaster.Instance.newIKLeftPosition, DeformTerrainMaster.Instance.newIKLeftPosition + (1 - slopeAngleLeft) * speedLeft, Color.blue);
+                //Debug.DrawLine(DeformTerrainMaster.Instance.newIKLeftPosition, DeformTerrainMaster.Instance.newIKLeftPosition + slopeAngleLeft * slopeLeft, Color.red);
+                //Debug.DrawLine(DeformTerrainMaster.Instance.newIKLeftPosition, DeformTerrainMaster.Instance.newIKLeftPosition + (1 - slopeAngleLeft) * speedLeft, Color.blue);
             }
 
             if (IsRightFootGrounded)
@@ -540,9 +542,12 @@ public class PhysicalFootprint : TerrainBrushPhysicalFootprint
                     }
                 }
                 
+                // Adapt weights values to preserve volume deformation
+                weightsBumpRight = PhysicalFootprintWeights.PostTreatmentWeights(weightsBumpRight, 0, 2 * gridSize + 1, neighbourCellsRight);
+                
                 // Draw vectors
-                Debug.DrawLine(DeformTerrainMaster.Instance.newIKRightPosition, DeformTerrainMaster.Instance.newIKRightPosition + slopeAngleRight * slopeRight, Color.red);
-                Debug.DrawLine(DeformTerrainMaster.Instance.newIKRightPosition, DeformTerrainMaster.Instance.newIKRightPosition + (1 - slopeAngleRight) * speedRight, Color.blue);
+                //Debug.DrawLine(DeformTerrainMaster.Instance.newIKRightPosition, DeformTerrainMaster.Instance.newIKRightPosition + slopeAngleRight * slopeRight, Color.red);
+                //Debug.DrawLine(DeformTerrainMaster.Instance.newIKRightPosition, DeformTerrainMaster.Instance.newIKRightPosition + (1 - slopeAngleRight) * speedRight, Color.blue);
             }
         }
         
@@ -749,7 +754,8 @@ public class PhysicalFootprint : TerrainBrushPhysicalFootprint
             {
                 if (!isFilteredLeft)
                 {
-                    heightMap = NewFilterHeightMapReturn(x, z, heightMap);
+                    for (int i = 0; i < filterIterationsLeftFoot; i++)
+                        heightMap = NewFilterHeightMapReturn(x, z, heightMap);
                     filterIterationsLeftCounter++;
                 }
 
@@ -770,7 +776,8 @@ public class PhysicalFootprint : TerrainBrushPhysicalFootprint
             {
                 if (!isFilteredRight)
                 {
-                    heightMap = NewFilterHeightMapReturn(x, z, heightMap);
+                    for (int i = 0; i < filterIterationsRightFoot; i++)
+                        heightMap = NewFilterHeightMapReturn(x, z, heightMap);
                     filterIterationsRightCounter++;
                 }
 

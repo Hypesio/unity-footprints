@@ -73,3 +73,6 @@ crashlytics-build.properties
 
 # Others
 /[Aa]ssets/[Mm]odels/peasant_man/*
+
+# Jetbrains IDEs
+/.idea/

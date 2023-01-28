@@ -40,6 +40,10 @@ public class DeformTerrainMaster : MonoBehaviour
     public Rigidbody leftFootRB;
     [Tooltip("RB attached to Right Foot for velocity estimation")]
     public Rigidbody rightFootRB;
+    [Tooltip("Particle system attached to Left Foot to leave footprints particles")]
+    public ParticleSystem leftFootPS;
+    [Tooltip("Particle system attached to Right Foot to leave footprints particles")]
+    public ParticleSystem rightFootPS;
 
     [Tooltip("RB attached to chest for velocity estimation")]
     public Rigidbody chestRB;
@@ -71,24 +75,45 @@ public class DeformTerrainMaster : MonoBehaviour
     public bool bumpSnow = false;
     public float poissonRatioSnow = 0.1f;
     public int filterIterationsSnow = 0;
+    [SerializeField]
+    public int quantitySnow = 10;
+    public float sizeSnow = 0.2f;
+    public float densitySnow = 1;
+    public float projectionAngleSnow = 15;
+    public List<Sprite> snowAtlas = new List<Sprite>();
     [Space(10)]
     public double youngModulusDrySand = 600000;
     public float timeDrySand = 0.3f;
     public bool bumpSand = false;
     public float poissonRatioSand = 0.2f;
     public int filterIterationsSand = 5;
+    public float quantityDrySand = 30;
+    public float sizeDrySand = 0.02f;
+    public float densityDrySand = 1f;
+    public float projectionAngleDrySand = 30;
+    public List<Sprite> sandAtlas = new List<Sprite>();
     [Space(10)]
     public double youngModulusMud = 350000;
     public float timeMud = 0.8f;
     public bool bumpMud = false;
     public float poissonRatioMud = 0.4f;
     public int filterIterationsMud = 2;
+    public int quantityMud = 10;
+    public float sizeMud = 1.5f;
+    public float densityMud = 1;
+    public float projectionAngleMud = 45;
+    public List<Sprite> mudAtlas = new List<Sprite>();
     [Space(10)]
     public double youngModulusSoil = 350000;
     public float timeSoil = 0.8f;
     public bool bumpSoil = false;
     public float poissonRatioSoil = 0.4f;
     public int filterIterationsSoil = 2;
+    public int quantitySoil = 4;
+    public float sizeSoil = 0.05f;
+    public float densitySoil = 1;
+    public List<Sprite> soilAtlas = new List<Sprite>();
+    public float projectionAngleSoil = 22;
 
     [Header("Bipedal - System Info")]
     [Space(20)]
@@ -110,6 +135,8 @@ public class DeformTerrainMaster : MonoBehaviour
     private Vector3 oldIKRightPosition;
     private Animator _anim;
     private IKFeetPlacement _feetPlacement = null;
+    private bool wasLeftFootGrounded;
+    private bool wasRightFootGrounded;
 
     [Header("Bipedal - Physics - Debug")]
     [Space(20)]
@@ -197,6 +224,10 @@ public class DeformTerrainMaster : MonoBehaviour
     private bool oldIsJumping = false;
     private bool isJumping = false;
     private int provCounter = 0;
+
+    // Foot particles
+    private bool leftFootParticlesLock = false;
+    private bool rightFootParticlesLock = false;
 
     #endregion
 
@@ -297,9 +328,202 @@ public class DeformTerrainMaster : MonoBehaviour
     }
     
 
+    void LateUpdate()
+    {
+        ApplyFootParticles();
+    }
+
     #endregion
 
     #region Instance Methods
+
+    private void InitParticleSpecs(ParticleSystem.MainModule mainPS, ParticleSystem.ShapeModule shapePS, ParticleSystem currentPS, string currentTerrain, float currentFeetSpeed)
+    {
+        currentPS.emissionRate = getEmissionRate(currentFeetSpeed, currentTerrain);
+        mainPS.startSize = getStartSize(currentTerrain);
+        shapePS.angle = getShapeAngle(currentTerrain);
+
+        SetFeetParticleAtlas(currentTerrain, currentPS);
+
+        // TODO: Fix character speed parameter?
+        if (currentTerrain == "Dry Sand")
+        {
+            mainPS.startLifetime = UnityEngine.Random.Range(1.4f, currentFeetSpeed * 1.8f);
+            mainPS.startColor = new Color(1f, 1f, 1f, 0.5f); // otherwise the particles are black
+
+            var noise = currentPS.noise; // https://docs.unity3d.com/Manual/PartSysNoiseModule.html
+            noise.enabled = true;
+            noise.strength = 0.4f;
+            noise.frequency = 2f;
+
+            var collision = currentPS.collision;
+            collision.enabled = true;
+            collision.type = ParticleSystemCollisionType.World;
+            collision.mode = ParticleSystemCollisionMode.Collision3D;
+            collision.dampen = 0f;
+            collision.bounce = 0.05f;
+            collision.radiusScale = 0.1f;
+            collision.quality = ParticleSystemCollisionQuality.High;
+        }
+        else if (currentTerrain == "Mud")
+        {
+            mainPS.startLifetime = UnityEngine.Random.Range(0.7f, 1f);
+            mainPS.startColor = new Color(1f, 1f, 1f, 0.8f); // otherwise the particles are not rendered (???)
+
+            var noise = currentPS.noise;
+            noise.enabled = false;
+
+            var collision = currentPS.collision;
+            collision.enabled = true;
+            collision.type = ParticleSystemCollisionType.World;
+            collision.mode = ParticleSystemCollisionMode.Collision3D;
+            collision.dampen = 0.1f;
+            collision.bounce = 0.1f;
+            collision.radiusScale = 0.1f;
+            collision.quality = ParticleSystemCollisionQuality.High;
+        }
+        else if (currentTerrain == "Main Terrain - Snow")
+        {
+            mainPS.startLifetime = UnityEngine.Random.Range(0.7f, 1f);
+            mainPS.startColor = new Color(1f, 1f, 1f, 0.8f);
+
+            var collision = currentPS.collision;
+            collision.enabled = true;
+            collision.type = ParticleSystemCollisionType.World;
+            collision.mode = ParticleSystemCollisionMode.Collision3D;
+            collision.dampen = 0.1f;
+            collision.bounce = 0.1f;
+            collision.radiusScale = 0.1f;
+            collision.quality = ParticleSystemCollisionQuality.High;
+
+            var noise = currentPS.noise;
+            noise.enabled = false;
+        }
+    }
+
+    void SetFeetParticleAtlas(string currentTerrain, ParticleSystem currentPS)
+    {
+        List<Sprite> atlas;
+        var module = currentPS.textureSheetAnimation;
+
+        switch (currentTerrain)
+        {
+            case "Main Terrain - Snow":
+                atlas = snowAtlas;
+                break;
+            case "Dry Sand":
+                atlas = sandAtlas;
+                break;
+            case "Mud":
+                atlas = mudAtlas;
+                break;
+            default:
+                atlas = soilAtlas;
+                break;
+        }
+
+        for (int i = 0; i < atlas.Count; i++)
+        {
+            module.SetSprite(i, atlas[i]);
+        }
+    }
+
+    private void ApplyFootParticles()
+    {
+        string terrainName = myBipedalCharacter.GetComponent<RigidBodyControllerSimpleAnimator>().currentTerrain.name;
+
+        if (wasLeftFootGrounded && !isLeftFootGrounded)
+        {
+            ParticleSystem.MainModule mainPS = leftFootPS.main;
+            ParticleSystem.ShapeModule shapePS = leftFootPS.shape;
+            InitParticleSpecs(mainPS, shapePS, leftFootPS, terrainName, feetSpeedLeft.y); // TODO: Take better velocity than feetSpeed y axis
+            leftFootPS.Play();
+        }
+        wasLeftFootGrounded = isLeftFootGrounded;
+
+        if (wasRightFootGrounded && !isRightFootGrounded)
+        {
+            ParticleSystem.MainModule mainPS = rightFootPS.main;
+            ParticleSystem.ShapeModule shapePS = rightFootPS.shape;
+            InitParticleSpecs(mainPS, shapePS, rightFootPS, terrainName, feetSpeedRight.y);
+            rightFootPS.Play();
+        }
+        wasRightFootGrounded = isRightFootGrounded;
+    }
+
+    private float getEmissionRate(float speed, string terrain)
+    {
+        float threshold = 0.6f;
+        float emissionRate = 10 * speed;
+        
+        switch (terrain)
+        {
+            case "Main Terrain - Snow":
+                emissionRate += quantitySnow;
+                emissionRate /= densitySnow;
+                break;
+            case "Dry Sand":
+                emissionRate += quantityDrySand;
+                emissionRate /= densityDrySand;
+                break;
+            case "Mud":
+                emissionRate += quantityMud;
+                emissionRate /= densityMud;
+                break;
+            default:
+                emissionRate += quantitySoil;
+                emissionRate /= densitySoil;
+                break;
+        }
+        
+
+        if (speed > threshold)
+            emissionRate *= 3;
+        else if (UnityEngine.Random.value < .5)
+            emissionRate = 0;
+        //print(emissionRate);
+
+        return emissionRate;
+    }
+
+    private float getStartSize(string terrain)
+    {
+        float interval = 0.07f;
+        float size = 1.0f;
+
+        switch (terrain)
+        {
+            case "Main Terrain - Snow":
+                size = sizeSnow;
+                interval = 0.07f;
+                break;
+            case "Dry Sand":
+                size = sizeDrySand;
+                interval = 0.07f;
+                break;
+            case "Mud":
+                size = sizeMud;
+                interval = 0.07f;
+                break;
+        }
+
+        return UnityEngine.Random.Range(size - interval, size + interval); ;
+    }
+
+    private float getShapeAngle(string terrain)
+    {
+        switch (terrain)
+        {
+            case "Main Terrain - Snow":
+                return projectionAngleSnow;
+            case "Dry Sand":
+                return projectionAngleDrySand;
+            case "Mud":
+                return projectionAngleMud;
+            default:
+                return projectionAngleSoil;
+        }
+    }
 
     private void ApplyDeformation()
     {
@@ -410,10 +634,9 @@ public class DeformTerrainMaster : MonoBehaviour
                 weightInRightFoot = 0f;
             }
         }
-
+        
         //       Bipedal Force Model       //
         // =============================== //
-
         if (brushPhysicalFootprint)
         {
             if (!isRightFootGrounded && !isLeftFootGrounded) // NEW
@@ -683,10 +906,13 @@ public class DeformTerrainMaster : MonoBehaviour
                     contactTime = timeSlider.value;
 
                     // Force Model UI
-                    drawWeightForces = activateToggleShowForceModel.isOn;
-                    drawMomentumForces = activateToggleShowForceModel.isOn;
-                    drawGRForces = activateToggleShowForceModel.isOn;
-                    drawFeetForces = activateToggleShowForceModel.isOn;
+                    if(!(activateToggleShowForceModel is null))
+                    {
+                        drawWeightForces = activateToggleShowForceModel.isOn;
+                        drawMomentumForces = activateToggleShowForceModel.isOn;
+                        drawGRForces = activateToggleShowForceModel.isOn;
+                        drawFeetForces = activateToggleShowForceModel.isOn;
+                    }
 
                 }
                 break;

@@ -128,7 +128,7 @@ public class RigidBodyControllerSimpleAnimator : MonoBehaviour
         // Terrain Angle
         //slopeAngle = _terrain.SlopeAngle;
 
-        // TEST 
+        // TEST
         if (applyChangeSpeedTerrain)
         {
             // Change speed based on slope - 30f in InverseLerp could be externalized

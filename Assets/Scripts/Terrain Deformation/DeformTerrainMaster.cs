@@ -739,7 +739,7 @@ public class DeformTerrainMaster : MonoBehaviour
 
         feetSpeedLeft = leftFootRB.velocity;
         feetSpeedRight = rightFootRB.velocity;
-        chestSpeed = chestRB.velocity;
+       /// chestSpeed = chestRB.velocity;
 
         if (drawNewVelocities)
         {

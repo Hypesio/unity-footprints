@@ -7,6 +7,7 @@
    * Last update: 07/02/2022
 *****************************************************/
 
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -23,4 +24,5 @@ public class SetYoung : MonoBehaviour
         youngSlider.maxValue = 1000000;
         youngSlider.value = 1000000;
     }
+    
 }

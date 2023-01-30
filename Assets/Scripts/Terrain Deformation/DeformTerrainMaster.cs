@@ -45,9 +45,6 @@ public class DeformTerrainMaster : MonoBehaviour
     [Tooltip("Particle system attached to Right Foot to leave footprints particles")]
     public ParticleSystem rightFootPS;
 
-    [Tooltip("RB attached to chest for velocity estimation")]
-    public Rigidbody chestRB;
-
     [Header("Source of Deformation - (SET UP)")]
     public sourceDeformation deformationChoice;
 
@@ -156,7 +153,6 @@ public class DeformTerrainMaster : MonoBehaviour
     [Header("Bipedal - Physics - Feet Velocities Info")]
     public Vector3 feetSpeedLeft = Vector3.zero;
     public Vector3 feetSpeedRight = Vector3.zero;
-    public Vector3 chestSpeed = Vector3.zero;
 
     [Header("Bipedal - Physics - Impulse and Momentum Forces Info")]
     public Vector3 feetImpulseLeft = Vector3.zero;
@@ -965,7 +961,6 @@ public class DeformTerrainMaster : MonoBehaviour
 
         feetSpeedLeft = leftFootRB.velocity;
         feetSpeedRight = rightFootRB.velocity;
-        chestSpeed = chestRB.velocity;
 
         if (drawNewVelocities)
         {

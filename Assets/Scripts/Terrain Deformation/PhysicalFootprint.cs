@@ -59,6 +59,11 @@ public class PhysicalFootprint : TerrainBrushPhysicalFootprint
     public bool isFilteredLeft = false;
     public bool isFilteredRight = false;
     [Range(0, 5)] private int gridSizeKernel = 1;
+    
+    [Header("Slope Bump - (SET UP)")]
+    [Space(20)]
+    public bool areSlopesAveraged = false;
+    [Range(0, 5)] public float slopeMultiplier = 3.0f;
 
     [Header("Grids - Debug")]
     [Space(20)]
@@ -465,89 +470,90 @@ public class PhysicalFootprint : TerrainBrushPhysicalFootprint
         #endregion
         
         // === Modulated Bump === //
-        float[,] weightsBumpSpeedLeft = PhysicalFootprintWeights.SetupWeights(gridSize, offsetBumpGrid, heightMapLeftBool);
-        float[,] weightsBumpSpeedRight = PhysicalFootprintWeights.SetupWeights(gridSize,  offsetBumpGrid, heightMapRightBool);
-        float[,] weightsBumpSlopeLeft = PhysicalFootprintWeights.SetupWeights(gridSize, offsetBumpGrid, heightMapLeftBool);
-        float[,] weightsBumpSlopeRight = PhysicalFootprintWeights.SetupWeights(gridSize,  offsetBumpGrid, heightMapRightBool);
-        float[,] weightsBumpLeft = PhysicalFootprintWeights.SetupWeights(gridSize, offsetBumpGrid, heightMapLeftBool);
-        float[,] weightsBumpRight = PhysicalFootprintWeights.SetupWeights(gridSize,  offsetBumpGrid, heightMapRightBool);
         
+        float[,] weightsBumpLeft = PhysicalFootprintWeights.SetupWeights(gridSize,  offsetBumpGrid, heightMapRightBool);
+        float[,] weightsBumpRight = PhysicalFootprintWeights.SetupWeights(gridSize,  offsetBumpGrid, heightMapLeftBool);
+
         if (applyModulatedBumps)
         {
-            //Vector3 speed = DeformTerrainMaster.Instance.chestSpeed;
-            //Vector3 speed = (DeformTerrainMaster.Instance.feetSpeedLeft + DeformTerrainMaster.Instance.feetSpeedRight) / 2;
-            LayerMask ground = LayerMask.GetMask("Ground");
-            Vector3 normalLeft = FrictionModel.GetFloorNormalFromFeet(false, ground);
-            Vector3 normalRight = FrictionModel.GetFloorNormalFromFeet(true, ground);
-            Vector3 normal = (normalLeft + normalRight) / 2;
-            
-            if (IsLeftFootGrounded)
-            {
-                Vector3 speedLeft = DeformTerrainMaster.Instance.feetSpeedLeft;
-                //Debug.Log("[Deform] Left feet speed " + speed);
-                
-                Vector3 slopeLeft = Vector3.Normalize(Vector3.ProjectOnPlane(Vector3.down, normal));
-                float slopeAngleLeft = Math.Abs(slopeLeft.y) * 3;
-                
-                // if slopeAngle is greater than 1 then we set it to 1
-                slopeAngleLeft = slopeAngleLeft > 1 ? 1 : slopeAngleLeft;
-                // Vector3 BumpDirectionLeft = (1 - slopeAngleLeft) * speedLeft + slopeAngleLeft * slopeLeft;
-                //Debug.Log("[Deform] moveDirectionLeft " + DeformTerrainMaster.Instance.chestSpeed);
-                //neighbourCellsLeft = 1;
-                weightsBumpSpeedLeft = PhysicalFootprintWeights.UpdateWeightsUsingSpeed(weightsBumpLeft, heightMapLeftBool,
-                    gridSize, speedLeft, neighbourCellsLeft);
-                weightsBumpSlopeLeft = PhysicalFootprintWeights.UpdateWeightsUsingSpeed(weightsBumpRight, heightMapRightBool,
-                    gridSize, slopeLeft, neighbourCellsLeft);
-                
-                // Calculate the final bump weights by sum up the speed and slope weights
-                for (int zi = -gridSize + offsetBumpGrid; zi <= gridSize - offsetBumpGrid; zi++)
-                {
-                    for (int xi = -gridSize + offsetBumpGrid; xi <= gridSize - offsetBumpGrid; xi++)
-                    {
-                        weightsBumpLeft[zi + gridSize, xi + gridSize] = (1 - slopeAngleLeft) * weightsBumpSpeedLeft[zi + gridSize, xi + gridSize] + slopeAngleLeft * weightsBumpSlopeLeft[zi + gridSize, xi + gridSize];
-                    }
-                }
-                // Adapt weights values to preserve volume deformation
-                weightsBumpLeft = PhysicalFootprintWeights.PostTreatmentWeights(weightsBumpLeft, 0, 2 * gridSize + 1, neighbourCellsLeft);
-                
-                // Draw vectors
-                //Debug.DrawLine(DeformTerrainMaster.Instance.newIKLeftPosition, DeformTerrainMaster.Instance.newIKLeftPosition + slopeAngleLeft * slopeLeft, Color.red);
-                //Debug.DrawLine(DeformTerrainMaster.Instance.newIKLeftPosition, DeformTerrainMaster.Instance.newIKLeftPosition + (1 - slopeAngleLeft) * speedLeft, Color.blue);
-            }
+            Vector3 speedLeft = DeformTerrainMaster.Instance.feetSpeedLeft;
+            Vector3 speedRight = DeformTerrainMaster.Instance.feetSpeedRight;
 
-            if (IsRightFootGrounded)
-            { 
-                Vector3 speedRight = DeformTerrainMaster.Instance.feetSpeedRight;
-                //Debug.Log("[Deform] right feet speed " + speed)
+            // if speeds are too low, don't apply modulated bumps
+            if (speedLeft.magnitude + speedRight.magnitude > 0.1f)
+            {
+                LayerMask ground = LayerMask.GetMask("Ground");
+                Vector3 normalLeft = FrictionModel.GetFloorNormalFromFeet(false, ground);
+                Vector3 normalRight = FrictionModel.GetFloorNormalFromFeet(true, ground);
                 
-                Vector3 slopeRight = Vector3.Normalize(Vector3.ProjectOnPlane(Vector3.down, normal));
-                float slopeAngleRight = Math.Abs(slopeRight.y) * 3;
-                
-                // if slopeAngle is greater than 1 then we set it to 1
-                slopeAngleRight = slopeAngleRight > 1 ? 1 : slopeAngleRight;
-                // Vector3 BumpDirectionRight = (1 - slopeAngleRight) * speed + slopeAngleRight * slopeRight;
-                // Debug.Log("[Deform] moveDirectionRight " + moveDirectionRight.y);
-                //neighbourCellsRight = 1;
-                weightsBumpSpeedRight = PhysicalFootprintWeights.UpdateWeightsUsingSpeed(weightsBumpRight, heightMapRightBool,
-                    gridSize, speedRight, neighbourCellsRight);
-                weightsBumpSlopeRight = PhysicalFootprintWeights.UpdateWeightsUsingSpeed(weightsBumpRight, heightMapRightBool,
-                    gridSize, slopeRight, neighbourCellsRight);
-                
-                // Calculate the final bump weights by sum up the speed and slope weights
-                for (int zi = -gridSize + offsetBumpGrid; zi <= gridSize - offsetBumpGrid; zi++)
+                if (areSlopesAveraged)
                 {
-                    for (int xi = -gridSize + offsetBumpGrid; xi <= gridSize - offsetBumpGrid; xi++)
-                    {
-                        weightsBumpRight[zi + gridSize, xi + gridSize] = (1 - slopeAngleRight) * weightsBumpSpeedRight[zi + gridSize, xi + gridSize] + slopeAngleRight * weightsBumpSlopeRight[zi + gridSize, xi + gridSize];
-                    }
+                    Vector3 normal = (normalLeft + normalRight) / 2;
+                    normalLeft = normal;
+                    normalRight = normal;
                 }
                 
-                // Adapt weights values to preserve volume deformation
-                weightsBumpRight = PhysicalFootprintWeights.PostTreatmentWeights(weightsBumpRight, 0, 2 * gridSize + 1, neighbourCellsRight);
+                if (IsLeftFootGrounded)
+                {
+                    Vector3 slopeLeft = Vector3.Normalize(Vector3.ProjectOnPlane(Vector3.down, normalLeft));
+                    // Calc slope angle
+                    float angleLeft = Mathf.Clamp(90 - Vector3.Angle(slopeLeft, Vector3.down), 0, 90);
+                    float angleLeftNormalized = angleLeft / 90;
+                    float slopeRatioLeft = Mathf.Clamp01(angleLeftNormalized * slopeMultiplier);
+                    
+                    float[,] weightsBumpSpeedLeft = PhysicalFootprintWeights.SetupWeights(gridSize,  offsetBumpGrid, heightMapRightBool);
+                    float[,] weightsBumpSlopeLeft = PhysicalFootprintWeights.SetupWeights(gridSize,  offsetBumpGrid, heightMapRightBool);   
+                    
+                    weightsBumpSpeedLeft = PhysicalFootprintWeights.UpdateWeightsUsingSpeed(weightsBumpSpeedLeft, heightMapLeftBool,
+                        gridSize, speedLeft, neighbourCellsLeft);
+                    weightsBumpSlopeLeft = PhysicalFootprintWeights.UpdateWeightsUsingSpeed(weightsBumpSlopeLeft, heightMapLeftBool,
+                        gridSize, slopeLeft, neighbourCellsLeft);
+                    
+                    // Calculate the final bump weights by sum up the speed and slope weights
+                    for (int zi = -gridSize + offsetBumpGrid; zi <= gridSize - offsetBumpGrid; zi++)
+                    {
+                        for (int xi = -gridSize + offsetBumpGrid; xi <= gridSize - offsetBumpGrid; xi++)
+                        {
+                            weightsBumpLeft[zi + gridSize, xi + gridSize] = (1 - slopeRatioLeft) * weightsBumpSpeedLeft[zi + gridSize, xi + gridSize]
+                                                                             + slopeRatioLeft * weightsBumpSlopeLeft[zi + gridSize, xi + gridSize];
+                        }
+                    }
+                    
+                    // Draw vectors
+                    Debug.DrawLine(DeformTerrainMaster.Instance.newIKLeftPosition, DeformTerrainMaster.Instance.newIKLeftPosition + slopeRatioLeft * slopeLeft, Color.red);
+                    Debug.DrawLine(DeformTerrainMaster.Instance.newIKLeftPosition, DeformTerrainMaster.Instance.newIKLeftPosition + (1 - slopeRatioLeft) * speedLeft, Color.blue);
+                }
                 
-                // Draw vectors
-                //Debug.DrawLine(DeformTerrainMaster.Instance.newIKRightPosition, DeformTerrainMaster.Instance.newIKRightPosition + slopeAngleRight * slopeRight, Color.red);
-                //Debug.DrawLine(DeformTerrainMaster.Instance.newIKRightPosition, DeformTerrainMaster.Instance.newIKRightPosition + (1 - slopeAngleRight) * speedRight, Color.blue);
+                if (IsRightFootGrounded)
+                {
+                    Vector3 slopeRight = Vector3.Normalize(Vector3.ProjectOnPlane(Vector3.down, normalRight));
+                    // Calc slope angle
+                    float angleRight = Mathf.Clamp(90 - Vector3.Angle(slopeRight, Vector3.down), 0, 90);
+                    float angleRightNormalized = angleRight / 90;
+                    float slopeRatioRight = Mathf.Clamp01(angleRightNormalized * slopeMultiplier);
+                    
+                    float[,] weightsBumpSpeedRight = PhysicalFootprintWeights.SetupWeights(gridSize,  offsetBumpGrid, heightMapLeftBool);
+                    float[,] weightsBumpSlopeRight = PhysicalFootprintWeights.SetupWeights(gridSize,  offsetBumpGrid, heightMapLeftBool);
+
+                    weightsBumpSpeedRight = PhysicalFootprintWeights.UpdateWeightsUsingSpeed(weightsBumpSpeedRight, heightMapRightBool,
+                        gridSize, speedRight, neighbourCellsRight);
+                    weightsBumpSlopeRight = PhysicalFootprintWeights.UpdateWeightsUsingSpeed(weightsBumpSlopeRight, heightMapRightBool,
+                        gridSize, slopeRight, neighbourCellsRight);
+                    
+                    // Calculate the final bump weights by sum up the speed and slope weights
+                    for (int zi = -gridSize + offsetBumpGrid; zi <= gridSize - offsetBumpGrid; zi++)
+                    {
+                        for (int xi = -gridSize + offsetBumpGrid; xi <= gridSize - offsetBumpGrid; xi++)
+                        {
+                            weightsBumpRight[zi + gridSize, xi + gridSize] = (1 - slopeRatioRight) * weightsBumpSpeedRight[zi + gridSize, xi + gridSize]
+                                                                             + slopeRatioRight * weightsBumpSlopeRight[zi + gridSize, xi + gridSize];
+                        }
+                    }
+                    
+                    // Draw vectors
+                    Debug.DrawLine(DeformTerrainMaster.Instance.newIKRightPosition, DeformTerrainMaster.Instance.newIKRightPosition + slopeRatioRight * slopeRight, Color.red);
+                    Debug.DrawLine(DeformTerrainMaster.Instance.newIKRightPosition, DeformTerrainMaster.Instance.newIKRightPosition + (1 - slopeRatioRight) * speedRight, Color.blue);
+                }
             }
         }
         
